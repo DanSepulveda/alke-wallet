@@ -1,0 +1,53 @@
+/* ESTILOS BÁSICOS */
+* {
+  font-family: 'Roboto', sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Ubuntu', sans-serif;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+/* BACKGROUNDS */
+#home-bg {
+  background-image: url('../img/background.webp');
+  background-position: center;
+  background-size: cover;
+}
+
+#home-bg:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.bg-glass {
+  background-color: #fafafa15;
+  backdrop-filter: blur(0.4em);
+  -webkit-backdrop-filter: blur(0.4em);
+}
+
+/* CUSTOM CLASSES */
+.w-full {
+  width: 100%;
+}
+
+.text-shadow-1 {
+  text-shadow: 1px 1px 3px rgb(61, 0, 56);
+}
+
+/* MEDIA QUERIES */
+@media screen and (min-width: 992px) {
+  .w-lg-75 {
+    width: 75%;
+  }
+}
