@@ -1,13 +1,19 @@
-// ########## CONSTANTES ##########
-const CORRECT_EMAIL = 'admin@python.com';
-const CORRECT_PASSWORD = 'admin';
+// ************************************************
+// ****************** CONSTANTES ******************
+// ************************************************
+const EMAIL_CORRECTO = 'admin@python.com';
+const CLAVE_CORRECTA = 'admin';
 
-// ########## CLAVES LOCAL STORAGE ##########
+// ************************************************
+// ************* CLAVES LOCAL STORAGE *************
+// ************************************************
 const KEY_SALDO = 'saldo';
 const KEY_CONTACTOS = 'contactos';
 const KEY_TRANSACCIONES = 'transacciones';
 
-// ########## FUNCIONES AUXILIARES ##########
+// ************************************************
+// ************* FUNCIONES AUXILIARES *************
+// ************************************************
 const formatearDinero = (amount) => {
   const formateador = new Intl.NumberFormat('es-CL', {
     style: 'currency',
@@ -66,7 +72,30 @@ const redirigir = (url, tiempo = 1500) => {
   }, tiempo);
 };
 
-// ########## FUNCIONES PRINCIPALES ##########
+const extraerDatosForm = (formulario) => {
+  const formData = new FormData(formulario);
+  const datos = Object.fromEntries(formData.entries());
+  return datos;
+};
+
+// ************************************************
+// ************ FUNCIONES PRINCIPALES *************
+// ************************************************
+const iniciarSesion = (event) => {
+  event.preventDefault();
+  const datos = extraerDatosForm(event.target);
+
+  if (datos.email === EMAIL_CORRECTO && datos.password === CLAVE_CORRECTA) {
+    alertar('Inicio de sesión exitoso. Redireccionando...');
+    mostrarSpinner();
+    desactivarBoton('login-button');
+    redirigir('menu.html');
+  } else {
+    alertar('Credenciales incorrectas.', false);
+  }
+};
+
+// TODO
 const displayCurrentBalance = () => {
   const balance = document.getElementById('balance');
   if (balance) {
@@ -118,11 +147,19 @@ const searchContact = (event) => {
   displayContacts(filteredContacts);
 };
 
+const filterTransactions = (event) => {
+  const selectedType = event.target.value;
+  const allTransactions = leerLS(KEY_TRANSACCIONES);
+  const filteredTransactions = allTransactions.filter((transaction) =>
+    transaction.type.includes(selectedType)
+  );
+  displayTransactions(filteredTransactions);
+};
+
 const createContact = () => {
   // TODO: validar datos
   const contactForm = document.getElementById('new-contact-form');
-  const formData = new FormData(contactForm);
-  const newContact = Object.fromEntries(formData.entries());
+  const newContact = extraerDatosForm(contactForm);
   const currentContacts = leerLS(KEY_CONTACTOS);
   console.log(currentContacts);
 
@@ -156,24 +193,6 @@ const addTransaction = (transaction) => {
   displayTransactions(currentTransactions);
 };
 
-// LOGIN FEATURE
-const login = (event) => {
-  event.preventDefault();
-
-  const formData = new FormData(event.target);
-  const { email, password } = Object.fromEntries(formData.entries());
-
-  if (email === CORRECT_EMAIL && password === CORRECT_PASSWORD) {
-    alertar('Inicio de sesión exitoso. Redireccionando...');
-    mostrarSpinner();
-    desactivarBoton('login-button');
-    redirigir('menu.html');
-  } else {
-    alertar('Credenciales incorrectas.', false);
-  }
-};
-
-// MENU OPTIONS TRIGGER
 const selectMenu = (event) => {
   const href = event.target.dataset.href;
   const text = event.target.textContent.trim();
@@ -182,7 +201,6 @@ const selectMenu = (event) => {
   redirigir(href);
 };
 
-// DEPOSIT or WITHDRAW
 const doOperation = (event) => {
   const amountInput = document.getElementById('amount');
   let operationAmount = amountInput.value;
@@ -220,8 +238,7 @@ const doOperation = (event) => {
 const transfer2 = (event) => {
   event.preventDefault();
   console.log('aca estoy');
-  const formData = new FormData(event.target);
-  const { amount } = Object.fromEntries(formData.entries());
+  const { amount } = extraerDatosForm(event.target);
 
   const currentBalance = leerLS(KEY_SALDO);
 
@@ -239,15 +256,9 @@ const transfer2 = (event) => {
   toast('Transferencia realizada');
 };
 
-const filterTransactions = (event) => {
-  const selectedType = event.target.value;
-  const allTransactions = leerLS(KEY_TRANSACCIONES);
-  const filteredTransactions = allTransactions.filter((transaction) =>
-    transaction.type.includes(selectedType)
-  );
-  displayTransactions(filteredTransactions);
-};
-
+// ************************************************
+// ************ FUNCION INICIALIZADORA ************
+// ************************************************
 const main = () => {
   // Set Account Balance
   displayCurrentBalance();
@@ -260,9 +271,9 @@ const main = () => {
   const searchInput = document.getElementById('search-contact');
   if (searchInput) searchInput.addEventListener('input', searchContact);
 
-  // Event Listener login form
+  // * EVENT LISTENER FORMULARIO LOGIN
   const loginForm = document.getElementById('login-form');
-  if (loginForm) loginForm.addEventListener('submit', login);
+  if (loginForm) loginForm.addEventListener('submit', iniciarSesion);
 
   // Event Listener menu options
   const options = document.getElementsByClassName('options');
