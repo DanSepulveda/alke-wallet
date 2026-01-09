@@ -1,11 +1,24 @@
-// CONSTANTS
+// CONSTANTES
 const CORRECT_EMAIL = 'admin@python.com';
 const CORRECT_PASSWORD = 'admin';
-const BALANCE_KEY = 'balance';
-const CONTACTS_KEY = 'contacts';
-const TRANSACTIONS_KEY = 'transactions';
 
-// HELPERS
+// CLAVES LOCAL STORAGE
+const KEY_SALDO = 'saldo';
+const KEY_CONTACTOS = 'contactos';
+const KEY_TRANSACCIONES = 'transacciones';
+
+// FUNCIONES AUXILIARES
+const leerLS = (clave) => {
+  const valor = localStorage.getItem(clave);
+  if (!valor && clave === KEY_SALDO) return 0;
+  if (!valor) return [];
+  return JSON.parse(valor);
+};
+
+const actualizarLS = (clave, nuevoValor) => {
+  localStorage.setItem(clave, JSON.stringify(nuevoValor));
+};
+
 const formatCash = (amount) => {
   const clpFormatter = new Intl.NumberFormat('es-CL', {
     style: 'currency',
@@ -54,29 +67,9 @@ const redirectAfter = (url, time = 1500) => {
   }, time);
 };
 
-const readBalanceLS = () => {
-  const balance = localStorage.getItem(BALANCE_KEY) ?? 0;
-  return parseInt(balance);
-};
-
-const updateBalanceLS = (amount) => {
-  const newBalance = readBalanceLS() + amount;
-  localStorage.setItem(BALANCE_KEY, newBalance);
-};
-
-const readContactsLS = () => {
-  const contacts = localStorage.getItem(CONTACTS_KEY);
-  if (!contacts) return [];
-  return JSON.parse(contacts);
-};
-
-const updateContactsLS = (contacts) => {
-  localStorage.setItem(CONTACTS_KEY, JSON.stringify(contacts));
-};
-
 const searchContact = (event) => {
   const name = event.target.value;
-  const contacts = readContactsLS();
+  const contacts = leerLS(KEY_CONTACTOS);
   const filteredContacts = contacts.filter(
     (contact) => contact.name.includes(name) || contact.alias.includes(name)
   );
@@ -88,18 +81,19 @@ const createContact = () => {
   const contactForm = document.getElementById('new-contact-form');
   const formData = new FormData(contactForm);
   const newContact = Object.fromEntries(formData.entries());
-  const currentContacts = readContactsLS();
+  const currentContacts = leerLS(KEY_CONTACTOS);
+  console.log(currentContacts);
 
   const newList = [...currentContacts, newContact];
 
-  updateContactsLS(newList);
+  actualizarLS(KEY_CONTACTOS, newList);
   displayContacts(newList);
 };
 
 const displayCurrentBalance = () => {
   const balance = document.getElementById('balance');
   if (balance) {
-    balance.innerText = formatCash(readBalanceLS());
+    balance.innerText = formatCash(leerLS(KEY_SALDO));
   }
 };
 
@@ -155,20 +149,10 @@ const displayTransactions = (transactions) => {
   }
 };
 
-const readTransactionsLS = () => {
-  const transactions = localStorage.getItem(TRANSACTIONS_KEY);
-  if (!transactions) return [];
-  return JSON.parse(transactions);
-};
-
-const updateTransactionsLS = (transactions) => {
-  localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions));
-};
-
 const addTransaction = (transaction) => {
-  const currentTransactions = readTransactionsLS();
+  const currentTransactions = leerLS(KEY_TRANSACCIONES);
   currentTransactions.unshift(transaction);
-  updateTransactionsLS(currentTransactions);
+  actualizarLS(KEY_TRANSACCIONES, currentTransactions);
   displayTransactions(currentTransactions);
 };
 
@@ -208,7 +192,7 @@ const doOperation = (event) => {
   }
 
   operationAmount = parseInt(operationAmount);
-  const currentBalance = readBalanceLS();
+  const currentBalance = leerLS(KEY_SALDO);
   const operation = event.target.dataset.operation;
 
   if (operation === 'retiro') {
@@ -216,11 +200,12 @@ const doOperation = (event) => {
       toast('Saldo insuficiente');
       return;
     }
-
-    updateBalanceLS(-operationAmount);
+    const nuevoSaldo = currentBalance - operationAmount;
+    actualizarLS(KEY_SALDO, nuevoSaldo);
     addTransaction({ type: 'Retiro', amount: -operationAmount });
   } else {
-    updateBalanceLS(operationAmount);
+    const nuevoSaldo = currentBalance + operationAmount;
+    actualizarLS(KEY_SALDO, nuevoSaldo);
     addTransaction({ type: 'Depósito', amount: operationAmount });
   }
 
@@ -236,7 +221,7 @@ const transfer2 = (event) => {
   const formData = new FormData(event.target);
   const { amount } = Object.fromEntries(formData.entries());
 
-  const currentBalance = readBalanceLS();
+  const currentBalance = leerLS(KEY_SALDO);
 
   if (amount > currentBalance) {
     toast('Saldo insuficiente', false);
@@ -246,7 +231,7 @@ const transfer2 = (event) => {
   const newBalance = currentBalance - amount;
   console.log(newBalance);
 
-  updateBalanceLS(parseInt(-amount));
+  actualizarLS(KEY_SALDO, newBalance);
   displayCurrentBalance();
   addTransaction({ type: 'Transferencia', amount: -amount });
   toast('Transferencia realizada');
@@ -254,7 +239,7 @@ const transfer2 = (event) => {
 
 const filterTransactions = (event) => {
   const selectedType = event.target.value;
-  const allTransactions = readTransactionsLS();
+  const allTransactions = leerLS(KEY_TRANSACCIONES);
   const filteredTransactions = allTransactions.filter((transaction) =>
     transaction.type.includes(selectedType)
   );
@@ -265,9 +250,9 @@ const main = () => {
   // Set Account Balance
   displayCurrentBalance();
 
-  displayContacts(readContactsLS());
+  displayContacts(leerLS(KEY_CONTACTOS));
 
-  displayTransactions(readTransactionsLS());
+  displayTransactions(leerLS(KEY_TRANSACCIONES));
 
   // Event Listener search contact
   const searchInput = document.getElementById('search-contact');
