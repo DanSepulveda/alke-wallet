@@ -138,7 +138,7 @@ const realizarOperacion = (event) => {
 
   if (operacion === 'retiro') {
     if (montoOperacion > saldoActual) {
-      toast('Saldo insuficiente');
+      toast('Saldo insuficiente', false);
       return;
     }
 
