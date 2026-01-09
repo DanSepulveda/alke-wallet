@@ -41,8 +41,8 @@
     <title>Depositar | Wallet</title>
   </head>
   <body
-    class="d-flex flex-column align-items-center bg-glass"
     id="home-bg"
+    class="d-flex flex-column align-items-center bg-glass"
   >
     <main
       class="container-custom d-flex flex-column align-items-center bg-main bg-glass"
@@ -62,13 +62,11 @@
         <span class="fs-6 text-foreground">Saldo contable</span>
         <span
           class="fs-1 fw-bold"
-          id="balance"
-          >$0</span
-        >
+          id="saldo"
+        ></span>
       </section>
       <section
-        class="d-flex flex-column gap-4 container rounded-top-5 bg-white px-5 py-3"
-        style="flex: 1"
+        class="d-flex flex-column flex-grow-1 gap-4 container rounded-top-5 bg-white px-5 py-3"
       >
         <div class="mb-3">
           <label
@@ -81,19 +79,19 @@
             class="form-control"
             id="amount"
             placeholder="Ingrese el monto"
-            name="amount"
+            name="monto-operacion"
           />
         </div>
         <div class="d-flex gap-2">
           <button
-            data-operation="depósito"
-            class="btn btn-dark btn-main w-100 deposit-withdraw"
+            data-operacion="depósito"
+            class="btn btn-dark btn-main w-100 deposito-retiro"
           >
             Realizar depósito
           </button>
           <button
-            data-operation="retiro"
-            class="btn btn-dark btn-main w-100 deposit-withdraw"
+            data-operacion="retiro"
+            class="btn btn-dark btn-main w-100 deposito-retiro"
           >
             Realizar retiro
           </button>

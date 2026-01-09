@@ -78,6 +78,19 @@ const extraerDatosForm = (formulario) => {
   return datos;
 };
 
+const generarFechaActual = () => {
+  const ahora = new Date();
+
+  return ahora.toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+};
+
 // ************************************************
 // ************ FUNCIONES PRINCIPALES *************
 // ************************************************
@@ -108,6 +121,42 @@ const manejarMenu = (event) => {
 
   alertar(`Redirigiendo a "${texto}"`);
   redirigir(href);
+};
+
+const realizarOperacion = (event) => {
+  const inputMonto = document.getElementById('monto-operacion');
+  let montoOperacion = inputMonto.value;
+
+  if (!montoOperacion) {
+    toast('Ingrese un monto', false);
+    return;
+  }
+
+  montoOperacion = parseInt(montoOperacion);
+  const saldoActual = leerLS(KEY_SALDO);
+  const operacion = event.target.dataset.operacion;
+
+  if (operacion === 'retiro') {
+    if (montoOperacion > saldoActual) {
+      toast('Saldo insuficiente');
+      return;
+    }
+
+    montoOperacion *= -1;
+  }
+
+  inputMonto.value = '';
+  actualizarLS(KEY_SALDO, saldoActual + montoOperacion);
+  mostrarSaldoActual();
+  registrarTransaccion({
+    tipo: operacion,
+    monto: montoOperacion,
+    fecha: generarFechaActual(),
+  });
+  toast(
+    `Se ha realizado un ${operacion} de ${formatearDinero(montoOperacion)}`
+  );
+  redirigir('menu.html', 2000);
 };
 
 // TODO
@@ -194,45 +243,11 @@ const transfer = (contact) => {
   // seleccionar user
 };
 
-const addTransaction = (transaction) => {
+const registrarTransaccion = (transaction) => {
   const currentTransactions = leerLS(KEY_TRANSACCIONES);
   currentTransactions.unshift(transaction);
   actualizarLS(KEY_TRANSACCIONES, currentTransactions);
   displayTransactions(currentTransactions);
-};
-
-const doOperation = (event) => {
-  const amountInput = document.getElementById('amount');
-  let operationAmount = amountInput.value;
-  if (!operationAmount) {
-    toast('Ingrese un monto', false);
-    return;
-  }
-
-  operationAmount = parseInt(operationAmount);
-  const currentBalance = leerLS(KEY_SALDO);
-  const operation = event.target.dataset.operation;
-
-  if (operation === 'retiro') {
-    if (operationAmount > currentBalance) {
-      toast('Saldo insuficiente');
-      return;
-    }
-    const nuevoSaldo = currentBalance - operationAmount;
-    actualizarLS(KEY_SALDO, nuevoSaldo);
-    addTransaction({ type: 'Retiro', amount: -operationAmount });
-  } else {
-    const nuevoSaldo = currentBalance + operationAmount;
-    actualizarLS(KEY_SALDO, nuevoSaldo);
-    addTransaction({ type: 'Depósito', amount: operationAmount });
-  }
-
-  toast(
-    `Se ha realizado un ${operation} de ${formatearDinero(operationAmount)}`
-  );
-  mostrarSaldoActual();
-  redirigir('menu.html', 2000);
-  amountInput.value = '';
 };
 
 const transfer2 = (event) => {
@@ -252,7 +267,7 @@ const transfer2 = (event) => {
 
   actualizarLS(KEY_SALDO, newBalance);
   mostrarSaldoActual();
-  addTransaction({ type: 'Transferencia', amount: -amount });
+  registrarTransaccion({ type: 'Transferencia', amount: -amount });
   toast('Transferencia realizada');
 };
 
@@ -276,17 +291,17 @@ const main = () => {
     }
   }
 
+  // * EVENT LISTENER PARA BOTONES DEPÓSITO/RETIRO
+  const botonesOperacion = document.getElementsByClassName('deposito-retiro');
+  if (botonesOperacion) {
+    for (let boton of botonesOperacion) {
+      boton.addEventListener('click', realizarOperacion);
+    }
+  }
+
   // Event Listener search contact
   const searchInput = document.getElementById('search-contact');
   if (searchInput) searchInput.addEventListener('input', searchContact);
-
-  // Event Listener for "deposit" and "withdraw"
-  const operationButtons = document.getElementsByClassName('deposit-withdraw');
-  if (operationButtons) {
-    for (let button of operationButtons) {
-      button.addEventListener('click', doOperation);
-    }
-  }
 
   // Event listener transfer form
   const transferForm = document.getElementById('transfer-form');
