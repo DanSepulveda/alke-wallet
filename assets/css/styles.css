@@ -1,4 +1,4 @@
-/* ESTILOS BÁSICOS */
+/* BASIC STYLES */
 * {
   font-family: 'Roboto', sans-serif;
 }
@@ -11,6 +11,10 @@ h3 {
 
 body {
   min-height: 100dvh;
+}
+
+main {
+  flex: 1;
 }
 
 /* BACKGROUNDS */
@@ -36,6 +40,12 @@ body {
   -webkit-backdrop-filter: blur(0.4em);
 }
 
+.bg-main {
+  background: #6a3093;
+  background: -webkit-linear-gradient(to right, #a044ff, #6a3093);
+  background: linear-gradient(to right, #a044ff, #6a3093);
+}
+
 /* CUSTOM CLASSES */
 .w-full {
   width: 100%;
@@ -43,6 +53,31 @@ body {
 
 .text-shadow-1 {
   text-shadow: 1px 1px 3px rgb(61, 0, 56);
+}
+
+.text-foreground {
+  color: rgb(220, 220, 220);
+}
+
+.container-custom {
+  width: 100%;
+  max-width: 470px;
+}
+
+.text-color-main {
+  color: #290046c6;
+}
+
+.btn-outline-main {
+  border-color: #6a3093;
+}
+
+.btn-outline-main:hover {
+  background-color: #290046c6;
+}
+
+.btn-outline-main:active {
+  background-color: #290046a6 !important;
 }
 
 /* MEDIA QUERIES */
