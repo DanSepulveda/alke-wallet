@@ -80,6 +80,23 @@ main {
   background-color: #290046a6 !important;
 }
 
+.btn-main {
+  background-color: #6a3093;
+}
+
+.btn-main:hover {
+  background-color: #7b37ac;
+}
+
+.btn-main:active {
+  background-color: #6a3093 !important;
+}
+
+.back:hover {
+  text-decoration: underline;
+  color: white;
+}
+
 /* MEDIA QUERIES */
 @media screen and (min-width: 992px) {
   .w-lg-75 {
