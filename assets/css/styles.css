@@ -51,6 +51,10 @@ main {
   width: 100%;
 }
 
+.fs-7 {
+  font-size: 14px;
+}
+
 .text-shadow-1 {
   text-shadow: 1px 1px 3px rgb(61, 0, 56);
 }
