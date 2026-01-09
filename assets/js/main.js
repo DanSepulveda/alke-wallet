@@ -43,10 +43,27 @@ const login = (event) => {
   }
 };
 
+// MENU OPTIONS TRIGGER
+const selectMenu = (event) => {
+  const href = event.target.dataset.href;
+  const text = event.target.textContent.trim();
+
+  createAlert(`Redirigiendo a "${text}"`);
+  redirectAfter(href);
+};
+
 const main = () => {
   // Event Listener login form
   const loginForm = document.getElementById('login-form');
   if (loginForm) loginForm.addEventListener('submit', login);
+
+  // Event Listener menu options
+  const options = document.getElementsByClassName('options');
+  if (options) {
+    for (let option of options) {
+      option.addEventListener('click', selectMenu);
+    }
+  }
 };
 
 main();
