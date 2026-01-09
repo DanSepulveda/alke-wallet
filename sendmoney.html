@@ -56,17 +56,28 @@
           volver al menú
         </a>
       </section>
+      <section class="text-center text-white d-flex flex-column w-full mt-3">
+        <h2 class="text-center fs-1">Enviar dinero</h2>
+      </section>
       <section
         class="text-center text-white d-flex flex-column w-full mt-3 mb-4"
       >
-        <h2 class="text-center fs-1">Enviar dinero</h2>
+        <span class="fs-6 text-foreground">Saldo contable</span>
+        <span
+          class="fs-1 fw-bold"
+          id="balance"
+          >$0</span
+        >
       </section>
 
       <section
         class="d-flex flex-column gap-4 container rounded-top-5 bg-white px-5 py-3"
         style="flex: 1"
       >
-        <form action="">
+        <form
+          action=""
+          id="search-form"
+        >
           <div class="d-flex align-items-end gap-2 mb-3">
             <div class="flex-grow-1">
               <label
@@ -77,13 +88,14 @@
               <input
                 type="text"
                 class="form-control"
-                id="search"
+                id="search-contact"
                 placeholder="Buscar contacto"
+                name="search"
               />
             </div>
             <button
               type="button"
-              class="btn btn-dark"
+              class="btn btn-dark btn-main"
               data-bs-toggle="modal"
               data-bs-target="#newContact"
             >
@@ -91,8 +103,73 @@
             </button>
           </div>
         </form>
+        <section
+          id="transfer-container"
+          class="d-none mb-3"
+        >
+          <label
+            class="form-label fs-5"
+            for="transfer-amount"
+            >Transferencia</label
+          >
+          <form
+            class="d-flex gap-2"
+            id="transfer-form"
+          >
+            <input
+              type="number"
+              class="form-control"
+              id="transfer-amount"
+              placeholder="Ingrese monto"
+              name="amount"
+            />
+            <button
+              class="btn btn-outline-dark btn-outline-main"
+              id="transfer"
+              type="submit"
+            >
+              <i class="bi bi-send"></i>
+            </button>
+            <button
+              class="btn btn-outline-dark btn-outline-main"
+              type="button"
+              id="cancel-transfer"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </section>
+        <section
+          class="d-flex flex-column gap-2 overflow-auto h-75 mb-5"
+          id="contacts"
+        ></section>
       </section>
     </main>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div
+        id="liveToast"
+        class="toast"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div
+          class="toast-body d-flex justify-content-between align-items-center gap-2"
+        >
+          <i id="toast-icon"></i>
+          <span
+            id="toast-message"
+            class="flex-grow-1"
+          ></span>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+    </div>
     <div
       class="modal fade"
       id="newContact"
@@ -117,7 +194,10 @@
             ></button>
           </div>
           <div class="modal-body">
-            <form action="">
+            <form
+              action=""
+              id="new-contact-form"
+            >
               <div class="mb-3">
                 <label
                   class="form-label fs-5"
@@ -129,6 +209,7 @@
                   class="form-control"
                   id="name"
                   placeholder="Ingrese su nombre"
+                  name="name"
                 />
               </div>
               <div class="mb-3">
@@ -142,6 +223,7 @@
                   class="form-control"
                   id="alias"
                   placeholder="Ingrese un alias"
+                  name="alias"
                 />
               </div>
               <div class="mb-3">
@@ -154,12 +236,27 @@
                   id="bank"
                   class="form-select"
                   aria-label="Default select example"
+                  name="bank"
                 >
                   <option disabled>Seleccione una opción</option>
                   <option value="1">Banco Estado</option>
                   <option value="2">Banco de Chile</option>
                   <option value="3">Banco Santander</option>
                 </select>
+              </div>
+              <div class="mb-3">
+                <label
+                  class="form-label fs-5"
+                  for="cbu"
+                  >N° CBU</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="cbu"
+                  placeholder="Ingrese el CBU"
+                  name="cbu"
+                />
               </div>
             </form>
           </div>
@@ -174,6 +271,7 @@
             <button
               type="button"
               class="btn btn-dark"
+              id="create-contact"
             >
               Crear
             </button>
@@ -186,5 +284,6 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

@@ -2,6 +2,7 @@
 const CORRECT_EMAIL = 'admin@python.com';
 const CORRECT_PASSWORD = 'admin';
 const BALANCE_KEY = 'balance';
+const CONTACTS_KEY = 'contacts';
 
 // HELPERS
 const formatCash = (amount) => {
@@ -62,10 +63,75 @@ const updateBalanceLS = (amount) => {
   localStorage.setItem(BALANCE_KEY, newBalance);
 };
 
+const readContactsLS = () => {
+  const contacts = localStorage.getItem(CONTACTS_KEY);
+  if (!contacts) return [];
+  return JSON.parse(contacts);
+};
+
+const updateContactsLS = (contacts) => {
+  localStorage.setItem(CONTACTS_KEY, JSON.stringify(contacts));
+};
+
+const searchContact = (event) => {
+  const name = event.target.value;
+  const contacts = readContactsLS();
+  const filteredContacts = contacts.filter(
+    (contact) => contact.name.includes(name) || contact.alias.includes(name)
+  );
+  displayContacts(filteredContacts);
+};
+
+const createContact = () => {
+  // TODO: validar datos
+  const contactForm = document.getElementById('new-contact-form');
+  const formData = new FormData(contactForm);
+  const newContact = Object.fromEntries(formData.entries());
+  const currentContacts = readContactsLS();
+
+  const newList = [...currentContacts, newContact];
+
+  updateContactsLS(newList);
+  displayContacts(newList);
+};
+
 const displayCurrentBalance = () => {
   const balance = document.getElementById('balance');
   if (balance) {
     balance.innerText = formatCash(readBalanceLS());
+  }
+};
+
+const cancelTransfer = () => {
+  console.log('first');
+  const container = document.getElementById('transfer-container');
+  const searchForm = document.getElementById('search-form');
+  container.classList.add('d-none');
+  searchForm.classList.remove('d-none');
+  // borrar user
+};
+
+const transfer = (contact) => {
+  const container = document.getElementById('transfer-container');
+  const searchForm = document.getElementById('search-form');
+  container.classList.remove('d-none');
+  searchForm.classList.add('d-none');
+  // seleccionar user
+};
+
+const displayContacts = (contacts) => {
+  const contactsContainer = document.getElementById('contacts');
+  if (contactsContainer) {
+    contactsContainer.innerHTML = '';
+    contacts.forEach((contact) => {
+      const card = `
+        <button class="btn btn-outline-dark btn-outline-main border d-flex flex-column p-2 rounded-2" onclick="transfer('${contact}')">
+          <span>${contact.name} (${contact.alias})</span>
+          <span>${contact.bank} - CBU: ${contact.cbu}</span>
+        </button>
+      `;
+      contactsContainer.innerHTML += card;
+    });
   }
 };
 
@@ -125,9 +191,36 @@ const doOperation = (event) => {
   amountInput.value = '';
 };
 
+const transfer2 = (event) => {
+  event.preventDefault();
+  console.log('aca estoy');
+  const formData = new FormData(event.target);
+  const { amount } = Object.fromEntries(formData.entries());
+
+  const currentBalance = readBalanceLS();
+
+  if (amount > currentBalance) {
+    toast('Saldo insuficiente', false);
+    return;
+  }
+
+  const newBalance = currentBalance - amount;
+  console.log(newBalance);
+
+  updateBalanceLS(parseInt(-amount));
+  displayCurrentBalance();
+  toast('Transferencia realizada');
+};
+
 const main = () => {
   // Set Account Balance
   displayCurrentBalance();
+
+  displayContacts(readContactsLS());
+
+  // Event Listener search contact
+  const searchInput = document.getElementById('search-contact');
+  if (searchInput) searchInput.addEventListener('input', searchContact);
 
   // Event Listener login form
   const loginForm = document.getElementById('login-form');
@@ -148,6 +241,17 @@ const main = () => {
       button.addEventListener('click', doOperation);
     }
   }
+
+  // Event listener transfer form
+  const transferForm = document.getElementById('transfer-form');
+  if (transferForm) transferForm.addEventListener('submit', transfer2);
+
+  const cancelTransferBtn = document.getElementById('cancel-transfer');
+  if (cancelTransferBtn)
+    cancelTransferBtn.addEventListener('click', cancelTransfer);
+
+  const addContactBtn = document.getElementById('create-contact');
+  if (addContactBtn) addContactBtn.addEventListener('click', createContact);
 };
 
 main();
