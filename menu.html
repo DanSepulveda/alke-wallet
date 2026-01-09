@@ -41,8 +41,8 @@
     <title>Menú principal | Wallet</title>
   </head>
   <body
-    class="d-flex flex-column align-items-center bg-glass"
     id="home-bg"
+    class="d-flex flex-column align-items-center bg-glass"
   >
     <main
       class="container-custom d-flex flex-column align-items-center bg-main bg-glass"
@@ -63,19 +63,17 @@
       >
         <span class="fs-6 text-foreground">Saldo contable</span>
         <span
+          id="saldo"
           class="fs-1 fw-bold"
-          id="balance"
-          >$0</span
-        >
+        ></span>
       </section>
       <section
-        class="d-flex flex-column gap-4 container rounded-top-5 bg-white px-5 py-3"
-        style="flex: 1"
+        class="d-flex flex-column flex-grow-1 gap-4 container rounded-top-5 bg-white px-5 py-3"
       >
         <h2 class="text-center fs-1 text-color-main">Menú principal</h2>
         <button
           type="button"
-          class="options btn btn-outline-dark btn-outline-main px-4 d-flex text-start gap-4 align-items-center fs-5 text-color-main"
+          class="opcion-menu btn btn-outline-dark btn-outline-main px-4 d-flex text-start gap-4 align-items-center fs-5 text-color-main"
           data-href="deposit.html"
         >
           <i class="bi bi-cash fs-1"></i>
@@ -83,7 +81,7 @@
         </button>
         <button
           type="button"
-          class="options btn btn-outline-dark btn-outline-main px-4 d-flex text-start gap-4 align-items-center fs-5 text-color-main"
+          class="opcion-menu btn btn-outline-dark btn-outline-main px-4 d-flex text-start gap-4 align-items-center fs-5 text-color-main"
           data-href="sendmoney.html"
         >
           <i class="bi bi-send fs-1"></i>
@@ -91,7 +89,7 @@
         </button>
         <button
           type="button"
-          class="options btn btn-outline-dark btn-outline-main px-4 d-flex text-start gap-4 align-items-center fs-5 text-color-main"
+          class="opcion-menu btn btn-outline-dark btn-outline-main px-4 d-flex text-start gap-4 align-items-center fs-5 text-color-main"
           data-href="transactions.html"
         >
           <i class="bi bi-clock-history fs-1"></i>

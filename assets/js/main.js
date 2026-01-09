@@ -95,14 +95,22 @@ const iniciarSesion = (event) => {
   }
 };
 
-// TODO
-const displayCurrentBalance = () => {
-  const balance = document.getElementById('balance');
-  if (balance) {
-    balance.innerText = formatearDinero(leerLS(KEY_SALDO));
+const mostrarSaldoActual = () => {
+  const saldoSpan = document.getElementById('saldo');
+  if (saldoSpan) {
+    saldoSpan.innerText = formatearDinero(leerLS(KEY_SALDO));
   }
 };
 
+const manejarMenu = (event) => {
+  const href = event.target.dataset.href;
+  const texto = event.target.textContent.trim();
+
+  alertar(`Redirigiendo a "${texto}"`);
+  redirigir(href);
+};
+
+// TODO
 const displayContacts = (contacts) => {
   const contactsContainer = document.getElementById('contacts');
   if (contactsContainer) {
@@ -193,14 +201,6 @@ const addTransaction = (transaction) => {
   displayTransactions(currentTransactions);
 };
 
-const selectMenu = (event) => {
-  const href = event.target.dataset.href;
-  const text = event.target.textContent.trim();
-
-  alertar(`Redirigiendo a "${text}"`);
-  redirigir(href);
-};
-
 const doOperation = (event) => {
   const amountInput = document.getElementById('amount');
   let operationAmount = amountInput.value;
@@ -230,7 +230,7 @@ const doOperation = (event) => {
   toast(
     `Se ha realizado un ${operation} de ${formatearDinero(operationAmount)}`
   );
-  displayCurrentBalance();
+  mostrarSaldoActual();
   redirigir('menu.html', 2000);
   amountInput.value = '';
 };
@@ -251,7 +251,7 @@ const transfer2 = (event) => {
   console.log(newBalance);
 
   actualizarLS(KEY_SALDO, newBalance);
-  displayCurrentBalance();
+  mostrarSaldoActual();
   addTransaction({ type: 'Transferencia', amount: -amount });
   toast('Transferencia realizada');
 };
@@ -260,28 +260,25 @@ const transfer2 = (event) => {
 // ************ FUNCION INICIALIZADORA ************
 // ************************************************
 const main = () => {
-  // Set Account Balance
-  displayCurrentBalance();
-
+  mostrarSaldoActual();
   displayContacts(leerLS(KEY_CONTACTOS));
-
   displayTransactions(leerLS(KEY_TRANSACCIONES));
-
-  // Event Listener search contact
-  const searchInput = document.getElementById('search-contact');
-  if (searchInput) searchInput.addEventListener('input', searchContact);
 
   // * EVENT LISTENER FORMULARIO LOGIN
   const loginForm = document.getElementById('login-form');
   if (loginForm) loginForm.addEventListener('submit', iniciarSesion);
 
-  // Event Listener menu options
-  const options = document.getElementsByClassName('options');
-  if (options) {
-    for (let option of options) {
-      option.addEventListener('click', selectMenu);
+  // * EVENT LISTENER PARA OPCIONES MENU PRINCIPAL
+  const opciones = document.getElementsByClassName('opcion-menu');
+  if (opciones) {
+    for (let opcion of opciones) {
+      opcion.addEventListener('click', manejarMenu);
     }
   }
+
+  // Event Listener search contact
+  const searchInput = document.getElementById('search-contact');
+  if (searchInput) searchInput.addEventListener('input', searchContact);
 
   // Event Listener for "deposit" and "withdraw"
   const operationButtons = document.getElementsByClassName('deposit-withdraw');
