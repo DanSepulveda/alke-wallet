@@ -59,29 +59,45 @@
       <section
         class="text-center text-white d-flex flex-column w-full mt-3 mb-4"
       >
-        <h2 class="text-center fs-1">Depositar</h2>
+        <span class="fs-6 text-foreground">Saldo contable</span>
+        <span
+          class="fs-1 fw-bold"
+          id="balance"
+          >$0</span
+        >
       </section>
-
       <section
         class="d-flex flex-column gap-4 container rounded-top-5 bg-white px-5 py-3"
         style="flex: 1"
       >
-        <form id="deposit-form">
-          <div class="mb-3">
-            <label
-              class="form-label fs-5"
-              for="amount"
-              >Monto</label
-            >
-            <input
-              type="number"
-              class="form-control"
-              id="amount"
-              placeholder="Ingrese su depósito"
-            />
-          </div>
-          <button class="btn btn-dark btn-main w-100">Realizar depósito</button>
-        </form>
+        <div class="mb-3">
+          <label
+            class="form-label fs-5"
+            for="amount"
+            >Monto de la operación</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            id="amount"
+            placeholder="Ingrese el monto"
+            name="amount"
+          />
+        </div>
+        <div class="d-flex gap-2">
+          <button
+            data-operation="depósito"
+            class="btn btn-dark btn-main w-100 deposit-withdraw"
+          >
+            Realizar depósito
+          </button>
+          <button
+            data-operation="retiro"
+            class="btn btn-dark btn-main w-100 deposit-withdraw"
+          >
+            Realizar retiro
+          </button>
+        </div>
       </section>
     </main>
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -92,14 +108,14 @@
         aria-live="assertive"
         aria-atomic="true"
       >
-        <div class="toast-header">
-          <img
-            src="..."
-            class="rounded me-2"
-            alt="..."
-          />
-          <strong class="me-auto">Bootstrap</strong>
-          <small>11 mins ago</small>
+        <div
+          class="toast-body d-flex justify-content-between align-items-center gap-2"
+        >
+          <i id="toast-icon"></i>
+          <span
+            id="toast-message"
+            class="flex-grow-1"
+          ></span>
           <button
             type="button"
             class="btn-close"
@@ -107,7 +123,6 @@
             aria-label="Close"
           ></button>
         </div>
-        <div class="toast-body"></div>
       </div>
     </div>
     <script
