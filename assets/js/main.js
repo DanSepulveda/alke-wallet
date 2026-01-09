@@ -1,13 +1,32 @@
-// CONSTANTES
+// ########## CONSTANTES ##########
 const CORRECT_EMAIL = 'admin@python.com';
 const CORRECT_PASSWORD = 'admin';
 
-// CLAVES LOCAL STORAGE
+// ########## CLAVES LOCAL STORAGE ##########
 const KEY_SALDO = 'saldo';
 const KEY_CONTACTOS = 'contactos';
 const KEY_TRANSACCIONES = 'transacciones';
 
-// FUNCIONES AUXILIARES
+// ########## FUNCIONES AUXILIARES ##########
+const formatearDinero = (amount) => {
+  const formateador = new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+  });
+
+  return formateador.format(amount);
+};
+
+const desactivarBoton = (id) => {
+  const boton = document.getElementById(id);
+  boton.disabled = 'true';
+};
+
+const mostrarSpinner = () => {
+  const spinner = document.getElementById('spinner');
+  spinner.classList.remove('d-none');
+};
+
 const leerLS = (clave) => {
   const valor = localStorage.getItem(clave);
   if (!valor && clave === KEY_SALDO) return 0;
@@ -19,36 +38,21 @@ const actualizarLS = (clave, nuevoValor) => {
   localStorage.setItem(clave, JSON.stringify(nuevoValor));
 };
 
-const formatCash = (amount) => {
-  const clpFormatter = new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-  });
+const alertar = (mensaje, exito = true) => {
+  const alerta = document.getElementById('alert');
+  const clases = exito ? 'alert alert-success' : 'alert alert-danger';
 
-  return clpFormatter.format(amount);
+  alerta.className = clases;
+  alerta.textContent = mensaje;
 };
 
-const disableButton = (id) => {
-  const button = document.getElementById(id);
-  button.disabled = 'true';
-};
-
-const createAlert = (message, success = true) => {
-  const alert = document.getElementById('alert');
-  const classList = success ? 'alert alert-success' : 'alert alert-danger';
-
-  alert.className = classList;
-  alert.textContent = message;
-};
-
-const toast = (message, success = true) => {
+const toast = (mensaje, exito = true) => {
   const toast = document.getElementById('liveToast');
   const toastIcon = toast.querySelector('#toast-icon');
   const toastBody = toast.querySelector('#toast-message');
 
-  toastBody.innerText = message;
-
-  toastIcon.className = success
+  toastBody.innerText = mensaje;
+  toastIcon.className = exito
     ? 'bi bi-check-circle text-success fs-5'
     : 'bi bi-x-circle text-danger fs-5';
 
@@ -56,62 +60,18 @@ const toast = (message, success = true) => {
   toastBootstrap.show();
 };
 
-const displaySpinner = () => {
-  const spinner = document.getElementById('spinner');
-  spinner.classList.remove('d-none');
-};
-
-const redirectAfter = (url, time = 1500) => {
+const redirigir = (url, tiempo = 1500) => {
   setTimeout(() => {
     window.location.href = url;
-  }, time);
+  }, tiempo);
 };
 
-const searchContact = (event) => {
-  const name = event.target.value;
-  const contacts = leerLS(KEY_CONTACTOS);
-  const filteredContacts = contacts.filter(
-    (contact) => contact.name.includes(name) || contact.alias.includes(name)
-  );
-  displayContacts(filteredContacts);
-};
-
-const createContact = () => {
-  // TODO: validar datos
-  const contactForm = document.getElementById('new-contact-form');
-  const formData = new FormData(contactForm);
-  const newContact = Object.fromEntries(formData.entries());
-  const currentContacts = leerLS(KEY_CONTACTOS);
-  console.log(currentContacts);
-
-  const newList = [...currentContacts, newContact];
-
-  actualizarLS(KEY_CONTACTOS, newList);
-  displayContacts(newList);
-};
-
+// ########## FUNCIONES PRINCIPALES ##########
 const displayCurrentBalance = () => {
   const balance = document.getElementById('balance');
   if (balance) {
-    balance.innerText = formatCash(leerLS(KEY_SALDO));
+    balance.innerText = formatearDinero(leerLS(KEY_SALDO));
   }
-};
-
-const cancelTransfer = () => {
-  console.log('first');
-  const container = document.getElementById('transfer-container');
-  const searchForm = document.getElementById('search-form');
-  container.classList.add('d-none');
-  searchForm.classList.remove('d-none');
-  // borrar user
-};
-
-const transfer = (contact) => {
-  const container = document.getElementById('transfer-container');
-  const searchForm = document.getElementById('search-form');
-  container.classList.remove('d-none');
-  searchForm.classList.add('d-none');
-  // seleccionar user
 };
 
 const displayContacts = (contacts) => {
@@ -140,13 +100,53 @@ const displayTransactions = (transactions) => {
         <li class="list-group-item">
           <span>${transaction.type}</span>
           <span class="fw-medium text-danger">
-            ${formatCash(transaction.amount)}
+            ${formatearDinero(transaction.amount)}
           </span>
         </li>`;
 
       transactionsContainer.innerHTML += card;
     });
   }
+};
+
+const searchContact = (event) => {
+  const name = event.target.value;
+  const contacts = leerLS(KEY_CONTACTOS);
+  const filteredContacts = contacts.filter(
+    (contact) => contact.name.includes(name) || contact.alias.includes(name)
+  );
+  displayContacts(filteredContacts);
+};
+
+const createContact = () => {
+  // TODO: validar datos
+  const contactForm = document.getElementById('new-contact-form');
+  const formData = new FormData(contactForm);
+  const newContact = Object.fromEntries(formData.entries());
+  const currentContacts = leerLS(KEY_CONTACTOS);
+  console.log(currentContacts);
+
+  const newList = [...currentContacts, newContact];
+
+  actualizarLS(KEY_CONTACTOS, newList);
+  displayContacts(newList);
+};
+
+const cancelTransfer = () => {
+  console.log('first');
+  const container = document.getElementById('transfer-container');
+  const searchForm = document.getElementById('search-form');
+  container.classList.add('d-none');
+  searchForm.classList.remove('d-none');
+  // borrar user
+};
+
+const transfer = (contact) => {
+  const container = document.getElementById('transfer-container');
+  const searchForm = document.getElementById('search-form');
+  container.classList.remove('d-none');
+  searchForm.classList.add('d-none');
+  // seleccionar user
 };
 
 const addTransaction = (transaction) => {
@@ -164,12 +164,12 @@ const login = (event) => {
   const { email, password } = Object.fromEntries(formData.entries());
 
   if (email === CORRECT_EMAIL && password === CORRECT_PASSWORD) {
-    createAlert('Inicio de sesión exitoso. Redireccionando...');
-    displaySpinner();
-    disableButton('login-button');
-    redirectAfter('menu.html');
+    alertar('Inicio de sesión exitoso. Redireccionando...');
+    mostrarSpinner();
+    desactivarBoton('login-button');
+    redirigir('menu.html');
   } else {
-    createAlert('Credenciales incorrectas.', false);
+    alertar('Credenciales incorrectas.', false);
   }
 };
 
@@ -178,8 +178,8 @@ const selectMenu = (event) => {
   const href = event.target.dataset.href;
   const text = event.target.textContent.trim();
 
-  createAlert(`Redirigiendo a "${text}"`);
-  redirectAfter(href);
+  alertar(`Redirigiendo a "${text}"`);
+  redirigir(href);
 };
 
 // DEPOSIT or WITHDRAW
@@ -209,9 +209,11 @@ const doOperation = (event) => {
     addTransaction({ type: 'Depósito', amount: operationAmount });
   }
 
-  toast(`Se ha realizado un ${operation} de ${formatCash(operationAmount)}`);
+  toast(
+    `Se ha realizado un ${operation} de ${formatearDinero(operationAmount)}`
+  );
   displayCurrentBalance();
-  redirectAfter('menu.html', 2000);
+  redirigir('menu.html', 2000);
   amountInput.value = '';
 };
 
