@@ -136,7 +136,7 @@ const realizarOperacion = (event) => {
   const saldoActual = leerLS(KEY_SALDO);
   const operacion = event.target.dataset.operacion;
 
-  if (operacion === 'retiro') {
+  if (operacion === 'Retiro') {
     if (montoOperacion > saldoActual) {
       toast('Saldo insuficiente', false);
       return;
@@ -154,9 +154,62 @@ const realizarOperacion = (event) => {
     fecha: generarFechaActual(),
   });
   toast(
-    `Se ha realizado un ${operacion} de ${formatearDinero(montoOperacion)}`
+    `Se ha realizado un ${operacion.toLowerCase()} de ${formatearDinero(
+      montoOperacion
+    )}`
   );
   redirigir('menu.html', 2000);
+};
+
+// ************************************************
+// **************** TRANSACCIONES *****************
+// ************************************************
+const listarTransacciones = (transacciones) => {
+  const contenedorTransacciones = document.getElementById('transacciones');
+
+  if (contenedorTransacciones) {
+    contenedorTransacciones.innerHTML = '';
+
+    transacciones.forEach((transaccion) => {
+      const color = transaccion.monto < 0 ? 'danger' : 'success';
+      const tarjeta = `
+        <li class="list-group-item">
+          <span class="d-block fw-light fs-7">
+            ${transaccion.fecha}
+          </span>
+          <div class="d-flex justify-content-between">
+            <span>${transaccion.tipo}</span>
+            <span class="text-right text-${color}">
+              ${formatearDinero(transaccion.monto)}
+            </span>
+          </div>
+        </li>`;
+
+      contenedorTransacciones.innerHTML += tarjeta;
+    });
+
+    if (!transacciones.length) {
+      contenedorTransacciones.innerHTML = `
+        <p class="text-center">Sin movimientos</p>
+      `;
+    }
+  }
+};
+
+const registrarTransaccion = (transaction) => {
+  const transaccionesActuales = leerLS(KEY_TRANSACCIONES);
+  transaccionesActuales.unshift(transaction);
+  actualizarLS(KEY_TRANSACCIONES, transaccionesActuales);
+  listarTransacciones(transaccionesActuales);
+};
+
+const filtrarTransacciones = (event) => {
+  const tipoTransaccion = event.target.value;
+  const transaccionesActuales = leerLS(KEY_TRANSACCIONES);
+  const transaccionesFiltradas = transaccionesActuales.filter((transaccion) =>
+    transaccion.tipo.includes(tipoTransaccion)
+  );
+  listarTransacciones(transaccionesFiltradas);
 };
 
 // TODO
@@ -176,25 +229,6 @@ const displayContacts = (contacts) => {
   }
 };
 
-const displayTransactions = (transactions) => {
-  const transactionsContainer = document.getElementById('transactions');
-  if (transactionsContainer) {
-    transactionsContainer.innerHTML = '';
-
-    transactions.forEach((transaction) => {
-      const card = `
-        <li class="list-group-item">
-          <span>${transaction.type}</span>
-          <span class="fw-medium text-danger">
-            ${formatearDinero(transaction.amount)}
-          </span>
-        </li>`;
-
-      transactionsContainer.innerHTML += card;
-    });
-  }
-};
-
 const searchContact = (event) => {
   const name = event.target.value;
   const contacts = leerLS(KEY_CONTACTOS);
@@ -202,15 +236,6 @@ const searchContact = (event) => {
     (contact) => contact.name.includes(name) || contact.alias.includes(name)
   );
   displayContacts(filteredContacts);
-};
-
-const filterTransactions = (event) => {
-  const selectedType = event.target.value;
-  const allTransactions = leerLS(KEY_TRANSACCIONES);
-  const filteredTransactions = allTransactions.filter((transaction) =>
-    transaction.type.includes(selectedType)
-  );
-  displayTransactions(filteredTransactions);
 };
 
 const createContact = () => {
@@ -243,13 +268,6 @@ const transfer = (contact) => {
   // seleccionar user
 };
 
-const registrarTransaccion = (transaction) => {
-  const currentTransactions = leerLS(KEY_TRANSACCIONES);
-  currentTransactions.unshift(transaction);
-  actualizarLS(KEY_TRANSACCIONES, currentTransactions);
-  displayTransactions(currentTransactions);
-};
-
 const transfer2 = (event) => {
   event.preventDefault();
   console.log('aca estoy');
@@ -276,8 +294,9 @@ const transfer2 = (event) => {
 // ************************************************
 const main = () => {
   mostrarSaldoActual();
+  listarTransacciones(leerLS(KEY_TRANSACCIONES));
+
   displayContacts(leerLS(KEY_CONTACTOS));
-  displayTransactions(leerLS(KEY_TRANSACCIONES));
 
   // * EVENT LISTENER FORMULARIO LOGIN
   const loginForm = document.getElementById('login-form');
@@ -299,6 +318,11 @@ const main = () => {
     }
   }
 
+  // * EVENT LISTENER PARA SELECT DE TRANSACCIONES (FILTRO)
+  const selectTransacciones = document.getElementById('tipo-transaccion');
+  if (selectTransacciones)
+    selectTransacciones.addEventListener('change', filtrarTransacciones);
+
   // Event Listener search contact
   const searchInput = document.getElementById('search-contact');
   if (searchInput) searchInput.addEventListener('input', searchContact);
@@ -313,10 +337,6 @@ const main = () => {
 
   const addContactBtn = document.getElementById('create-contact');
   if (addContactBtn) addContactBtn.addEventListener('click', createContact);
-
-  const transactionSelect = document.getElementById('transaction-type');
-  if (transactionSelect)
-    transactionSelect.addEventListener('change', filterTransactions);
 };
 
 main();
