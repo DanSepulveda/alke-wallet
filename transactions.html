@@ -65,29 +65,28 @@
         class="d-flex flex-column gap-4 container rounded-top-5 bg-white px-5 py-3"
         style="flex: 1"
       >
-        <ul class="list-group">
-          <li class="list-group-item">
-            Compra en línea - <span class="fw-medium text-danger">$50.000</span>
-          </li>
-          <li class="list-group-item">
-            Depósito - <span class="fw-medium text-success">$100.000</span>
-          </li>
-          <li class="list-group-item">
-            Transferencia recibida -
-            <span class="fw-medium text-success">$20.000</span>
-          </li>
-          <li class="list-group-item">
-            Compra en línea - <span class="fw-medium text-danger">$35.000</span>
-          </li>
-          <li class="list-group-item">
-            Depósito misma cuenta -
-            <span class="fw-medium text-success">$10.000</span>
-          </li>
-          <li class="list-group-item">
-            Transferencia recibida -
-            <span class="fw-medium text-success">$10.000</span>
-          </li>
-        </ul>
+        <div class="mb-3">
+          <label
+            class="form-label"
+            for="transaction-type"
+            >Filtrar movimiento</label
+          >
+          <select
+            id="transaction-type"
+            class="form-select"
+            aria-label="Default select example"
+            name="transaction"
+          >
+            <option value="">Mostrar todos los movimientos</option>
+            <option value="Depósito">Depósitos</option>
+            <option value="Retiro">Retiros</option>
+            <option value="Transferencia">Transferencias</option>
+          </select>
+        </div>
+        <ul
+          class="list-group"
+          id="transactions"
+        ></ul>
       </section>
     </main>
     <script
@@ -95,5 +94,6 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

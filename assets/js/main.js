@@ -3,6 +3,7 @@ const CORRECT_EMAIL = 'admin@python.com';
 const CORRECT_PASSWORD = 'admin';
 const BALANCE_KEY = 'balance';
 const CONTACTS_KEY = 'contacts';
+const TRANSACTIONS_KEY = 'transactions';
 
 // HELPERS
 const formatCash = (amount) => {
@@ -135,6 +136,42 @@ const displayContacts = (contacts) => {
   }
 };
 
+const displayTransactions = (transactions) => {
+  const transactionsContainer = document.getElementById('transactions');
+  if (transactionsContainer) {
+    transactionsContainer.innerHTML = '';
+
+    transactions.forEach((transaction) => {
+      const card = `
+        <li class="list-group-item">
+          <span>${transaction.type}</span>
+          <span class="fw-medium text-danger">
+            ${formatCash(transaction.amount)}
+          </span>
+        </li>`;
+
+      transactionsContainer.innerHTML += card;
+    });
+  }
+};
+
+const readTransactionsLS = () => {
+  const transactions = localStorage.getItem(TRANSACTIONS_KEY);
+  if (!transactions) return [];
+  return JSON.parse(transactions);
+};
+
+const updateTransactionsLS = (transactions) => {
+  localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions));
+};
+
+const addTransaction = (transaction) => {
+  const currentTransactions = readTransactionsLS();
+  currentTransactions.unshift(transaction);
+  updateTransactionsLS(currentTransactions);
+  displayTransactions(currentTransactions);
+};
+
 // LOGIN FEATURE
 const login = (event) => {
   event.preventDefault();
@@ -181,8 +218,10 @@ const doOperation = (event) => {
     }
 
     updateBalanceLS(-operationAmount);
+    addTransaction({ type: 'Retiro', amount: -operationAmount });
   } else {
     updateBalanceLS(operationAmount);
+    addTransaction({ type: 'Depósito', amount: operationAmount });
   }
 
   toast(`Se ha realizado un ${operation} de ${formatCash(operationAmount)}`);
@@ -209,7 +248,17 @@ const transfer2 = (event) => {
 
   updateBalanceLS(parseInt(-amount));
   displayCurrentBalance();
+  addTransaction({ type: 'Transferencia', amount: -amount });
   toast('Transferencia realizada');
+};
+
+const filterTransactions = (event) => {
+  const selectedType = event.target.value;
+  const allTransactions = readTransactionsLS();
+  const filteredTransactions = allTransactions.filter((transaction) =>
+    transaction.type.includes(selectedType)
+  );
+  displayTransactions(filteredTransactions);
 };
 
 const main = () => {
@@ -217,6 +266,8 @@ const main = () => {
   displayCurrentBalance();
 
   displayContacts(readContactsLS());
+
+  displayTransactions(readTransactionsLS());
 
   // Event Listener search contact
   const searchInput = document.getElementById('search-contact');
@@ -252,6 +303,10 @@ const main = () => {
 
   const addContactBtn = document.getElementById('create-contact');
   if (addContactBtn) addContactBtn.addEventListener('click', createContact);
+
+  const transactionSelect = document.getElementById('transaction-type');
+  if (transactionSelect)
+    transactionSelect.addEventListener('change', filterTransactions);
 };
 
 main();
