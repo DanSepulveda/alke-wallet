@@ -1,26 +1,26 @@
-// ************************************************
-// ****************** CONSTANTES ******************
-// ************************************************
+// ------------------------------------------------
+// ################## CONSTANTES ##################
+// ------------------------------------------------
 const EMAIL_CORRECTO = 'admin@python.com';
 const CLAVE_CORRECTA = 'admin';
 
-// ************************************************
-// ************* CLAVES LOCAL STORAGE *************
-// ************************************************
+// ------------------------------------------------
+// ############# CLAVES LOCAL STORAGE #############
+// ------------------------------------------------
 const KEY_SALDO = 'saldo';
 const KEY_CONTACTOS = 'contactos';
 const KEY_TRANSACCIONES = 'transacciones';
 
-// ************************************************
-// ************* FUNCIONES AUXILIARES *************
-// ************************************************
-const formatearDinero = (amount) => {
+// ------------------------------------------------
+// ############# FUNCIONES AUXILIARES #############
+// ------------------------------------------------
+const formatearDinero = (monto) => {
   const formateador = new Intl.NumberFormat('es-CL', {
     style: 'currency',
     currency: 'CLP',
   });
 
-  return formateador.format(amount);
+  return formateador.format(monto);
 };
 
 const desactivarBoton = (id) => {
@@ -74,8 +74,7 @@ const redirigir = (url, tiempo = 1500) => {
 
 const extraerDatosForm = (formulario) => {
   const formData = new FormData(formulario);
-  const datos = Object.fromEntries(formData.entries());
-  return datos;
+  return Object.fromEntries(formData.entries());
 };
 
 const generarFechaActual = () => {
@@ -91,93 +90,76 @@ const generarFechaActual = () => {
   });
 };
 
-// ************************************************
-// ************ FUNCIONES PRINCIPALES *************
-// ************************************************
-const iniciarSesion = (event) => {
-  event.preventDefault();
-  const datos = extraerDatosForm(event.target);
-
-  if (datos.email === EMAIL_CORRECTO && datos.password === CLAVE_CORRECTA) {
-    alertar('Inicio de sesión exitoso. Redireccionando...');
-    mostrarSpinner();
-    desactivarBoton('login-button');
-    redirigir('menu.html');
-  } else {
-    alertar('Credenciales incorrectas.', false);
-  }
+const registrarTransaccion = (transaccion) => {
+  const transaccionesActuales = leerLS(KEY_TRANSACCIONES);
+  transaccionesActuales.unshift(transaccion);
+  actualizarLS(KEY_TRANSACCIONES, transaccionesActuales);
+  listarTransacciones(transaccionesActuales);
 };
 
+// ------------------------------------------------
+// ############## MOSTRAR INFORMACIÓN #############
+// ------------------------------------------------
 const mostrarSaldoActual = () => {
   const saldoSpan = document.getElementById('saldo');
-  if (saldoSpan) {
-    saldoSpan.innerText = formatearDinero(leerLS(KEY_SALDO));
-  }
+  if (!saldoSpan) return;
+  saldoSpan.innerText = formatearDinero(leerLS(KEY_SALDO));
 };
 
-const manejarMenu = (event) => {
-  const href = event.target.dataset.href;
-  const texto = event.target.textContent.trim();
+const listarDestinatarios = (destinatarios) => {
+  const contenedorDestinatarios = document.getElementById('destinatarios');
+  if (!contenedorDestinatarios) return;
 
-  alertar(`Redirigiendo a "${texto}"`);
-  redirigir(href);
-};
+  contenedorDestinatarios.innerHTML = '';
+  destinatarios.forEach((destinatario) => {
+    const boton = `
+        <button
+          class="btn btn-outline-dark btn-outline-main border d-flex align-items-center gap-3 p-2 rounded-2"
+          data-destinatario="${destinatario.nombre}"
+        >
+          <img src="assets/img/usuario.png" width="36" alt="Avatar" />
+          <div class="d-flex flex-column align-items-start">
+            <span class="fw-bold">${destinatario.nombre} (${destinatario.alias})</span>
+            <span>${destinatario.banco}</span>
+            <span class="fs-7">CBU: ${destinatario.cbu}</span>
+          </div>
+        </button>
+      `;
 
-const realizarOperacion = (event) => {
-  const inputMonto = document.getElementById('monto-operacion');
-  let montoOperacion = inputMonto.value;
-
-  if (!montoOperacion) {
-    toast('Ingrese un monto', false);
-    return;
-  }
-
-  montoOperacion = parseInt(montoOperacion);
-  const saldoActual = leerLS(KEY_SALDO);
-  const operacion = event.target.dataset.operacion;
-
-  if (operacion === 'Retiro') {
-    if (montoOperacion > saldoActual) {
-      toast('Saldo insuficiente', false);
-      return;
-    }
-
-    montoOperacion *= -1;
-  }
-
-  inputMonto.value = '';
-  actualizarLS(KEY_SALDO, saldoActual + montoOperacion);
-  mostrarSaldoActual();
-  registrarTransaccion({
-    tipo: operacion,
-    monto: montoOperacion,
-    fecha: generarFechaActual(),
+    contenedorDestinatarios.innerHTML += boton;
   });
-  toast(
-    `Se ha realizado un ${operacion.toLowerCase()} de ${formatearDinero(
-      montoOperacion
-    )}`
-  );
-  redirigir('menu.html', 2000);
+
+  contenedorDestinatarios.addEventListener('click', (evento) => {
+    const boton = evento.target.closest('button');
+    if (!boton) return;
+
+    const destinatario = boton.dataset.destinatario;
+    toogleFormTransferencia(destinatario);
+    contenedorDestinatarios.innerHTML = '';
+  });
+
+  if (!destinatarios.length) {
+    contenedorDestinatarios.innerHTML = `
+        <p class="text-center">No hay destinatarios regristrados</p>
+      `;
+  }
 };
 
-// ************************************************
-// **************** TRANSACCIONES *****************
-// ************************************************
 const listarTransacciones = (transacciones) => {
   const contenedorTransacciones = document.getElementById('transacciones');
+  if (!contenedorTransacciones) return;
 
-  if (contenedorTransacciones) {
-    contenedorTransacciones.innerHTML = '';
+  contenedorTransacciones.innerHTML = '';
 
-    transacciones.forEach((transaccion) => {
-      const color = transaccion.monto < 0 ? 'danger' : 'success';
-      const tarjeta = `
+  transacciones.forEach((transaccion) => {
+    const color = transaccion.monto < 0 ? 'danger' : 'success';
+    const tarjeta = `
         <li class="list-group-item">
-          <span class="d-block fw-light fs-7">
-            ${transaccion.fecha}
-          </span>
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between fw-light fs-7">
+            <span>${transaccion.fecha}</span>
+            <span>${transaccion.asunto ?? ''}</span>
+          </div>
+          <div class="d-flex justify-content-between gap-2">
             <span>${transaccion.tipo}</span>
             <span class="text-right text-${color}">
               ${formatearDinero(transaccion.monto)}
@@ -185,158 +167,225 @@ const listarTransacciones = (transacciones) => {
           </div>
         </li>`;
 
-      contenedorTransacciones.innerHTML += tarjeta;
-    });
+    contenedorTransacciones.innerHTML += tarjeta;
+  });
 
-    if (!transacciones.length) {
-      contenedorTransacciones.innerHTML = `
+  if (!transacciones.length) {
+    contenedorTransacciones.innerHTML = `
         <p class="text-center">Sin movimientos</p>
       `;
-    }
   }
 };
 
-const registrarTransaccion = (transaction) => {
-  const transaccionesActuales = leerLS(KEY_TRANSACCIONES);
-  transaccionesActuales.unshift(transaction);
-  actualizarLS(KEY_TRANSACCIONES, transaccionesActuales);
-  listarTransacciones(transaccionesActuales);
+// ------------------------------------------------
+// ############# SETUP DE FORMULARIOS #############
+// ------------------------------------------------
+const setupFormLogin = () => {
+  const formularioLogin = document.getElementById('form-login');
+  if (!formularioLogin) return;
+
+  formularioLogin.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    const datos = extraerDatosForm(evento.target);
+
+    if (datos.email === EMAIL_CORRECTO && datos.password === CLAVE_CORRECTA) {
+      alertar('Inicio de sesión exitoso. Redireccionando...');
+      mostrarSpinner();
+      desactivarBoton('boton-login');
+      redirigir('menu.html');
+    } else {
+      alertar('Credenciales incorrectas.', false);
+    }
+  });
 };
 
-const filtrarTransacciones = (event) => {
-  const tipoTransaccion = event.target.value;
-  const transaccionesActuales = leerLS(KEY_TRANSACCIONES);
-  const transaccionesFiltradas = transaccionesActuales.filter((transaccion) =>
-    transaccion.tipo.includes(tipoTransaccion)
-  );
-  listarTransacciones(transaccionesFiltradas);
+const setupFormDeposito = () => {
+  const formularioDeposito = document.getElementById('form-deposito');
+  if (!formularioDeposito) return;
+
+  formularioDeposito.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Enter') evento.preventDefault();
+  });
+
+  formularioDeposito.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    const form = extraerDatosForm(evento.target);
+    let montoOperacion = form.monto;
+
+    if (montoOperacion <= 0) {
+      toast('Ingrese un monto mayor a $0', false);
+      return;
+    }
+
+    montoOperacion = parseInt(montoOperacion);
+    const saldoActual = leerLS(KEY_SALDO);
+    const operacion = evento.submitter.dataset.operacion;
+
+    if (operacion === 'Retiro') {
+      if (montoOperacion > saldoActual) {
+        toast('Saldo insuficiente', false);
+        return;
+      }
+
+      montoOperacion *= -1;
+    }
+
+    evento.target.reset();
+    actualizarLS(KEY_SALDO, saldoActual + montoOperacion);
+    mostrarSaldoActual();
+    registrarTransaccion({
+      tipo: operacion,
+      monto: montoOperacion,
+      fecha: generarFechaActual(),
+      asunto: form.asunto,
+    });
+    toast(
+      `Se ha realizado un ${operacion.toLowerCase()} de ${formatearDinero(
+        montoOperacion
+      )}`
+    );
+    redirigir('menu.html', 2000);
+  });
 };
 
-// TODO
-const displayContacts = (contacts) => {
-  const contactsContainer = document.getElementById('contacts');
-  if (contactsContainer) {
-    contactsContainer.innerHTML = '';
-    contacts.forEach((contact) => {
-      const card = `
-        <button class="btn btn-outline-dark btn-outline-main border d-flex flex-column p-2 rounded-2" onclick="transfer('${contact}')">
-          <span>${contact.name} (${contact.alias})</span>
-          <span>${contact.bank} - CBU: ${contact.cbu}</span>
-        </button>
-      `;
-      contactsContainer.innerHTML += card;
+const setupFormCrearDestinatario = () => {
+  const formularioDestinatario = document.getElementById('form-destinatario');
+  if (!formularioDestinatario) return;
+
+  formularioDestinatario.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    const nuevoDestinatario = extraerDatosForm(evento.target);
+    const destinatariosActuales = leerLS(KEY_CONTACTOS);
+    destinatariosActuales.push(nuevoDestinatario);
+    actualizarLS(KEY_CONTACTOS, destinatariosActuales);
+    const modalElement = document.getElementById('nuevo-destinatario');
+    const bsModal = bootstrap.Modal.getInstance(modalElement);
+    bsModal.hide();
+    formularioDestinatario.reset();
+    listarDestinatarios(destinatariosActuales);
+  });
+};
+
+// !REVISAR
+const setupFormTransferencia = () => {
+  const formTransferencia = document.getElementById('form-transferencia');
+  if (!formTransferencia) return;
+
+  formTransferencia.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    const form = extraerDatosForm(evento.target);
+
+    const saldoActual = leerLS(KEY_SALDO);
+
+    if (form.monto > saldoActual) {
+      toast('Saldo insuficiente', false);
+      return;
+    }
+
+    actualizarLS(KEY_SALDO, saldoActual - form.monto);
+    mostrarSaldoActual();
+    registrarTransaccion({
+      tipo: 'Transferencia',
+      monto: -form.monto,
+      fecha: generarFechaActual(),
+      asunto: form.asunto,
+    });
+    toast('Transferencia realizada');
+    toogleFormTransferencia();
+    const destinatarios = leerLS(KEY_CONTACTOS);
+    listarDestinatarios(destinatarios);
+  });
+
+  const botonCancelar = document.getElementById('cancelar');
+  console.log(botonCancelar);
+  botonCancelar.addEventListener('click', () => {
+    toogleFormTransferencia();
+    const destinatarios = leerLS(KEY_CONTACTOS);
+    listarDestinatarios(destinatarios);
+  });
+};
+
+// ------------------------------------------------
+// ############### SETUP DE FILTROS ###############
+// ------------------------------------------------
+const setupFiltroDestinatarios = () => {
+  const inputDestinatario = document.getElementById('buscar-destinatario');
+  if (!inputDestinatario) return;
+
+  inputDestinatario.addEventListener('input', (evento) => {
+    const busqueda = evento.target.value;
+    const contactosActuales = leerLS(KEY_CONTACTOS);
+    const contactosFiltrados = contactosActuales.filter(
+      (contacto) =>
+        contacto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        contacto.alias.toLowerCase().includes(busqueda.toLowerCase())
+    );
+    listarDestinatarios(contactosFiltrados);
+  });
+};
+
+const setupFiltroTransacciones = () => {
+  const selectTransacciones = document.getElementById('tipo-transaccion');
+  if (!selectTransacciones) return;
+
+  selectTransacciones.addEventListener('change', (evento) => {
+    const tipoTransaccion = evento.target.value;
+    const transaccionesActuales = leerLS(KEY_TRANSACCIONES);
+    const transaccionesFiltradas = transaccionesActuales.filter((transaccion) =>
+      transaccion.tipo.includes(tipoTransaccion)
+    );
+    listarTransacciones(transaccionesFiltradas);
+  });
+};
+
+// ------------------------------------------------
+// ############### SETUP DE EVENTOS ###############
+// ------------------------------------------------
+const setupMenuHandler = () => {
+  const opciones = document.getElementsByClassName('opcion-menu');
+  if (!opciones) return;
+
+  for (let opcion of opciones) {
+    opcion.addEventListener('click', (evento) => {
+      const href = evento.target.dataset.href;
+      const texto = evento.target.textContent.trim();
+
+      alertar(`Redirigiendo a "${texto}"`);
+      redirigir(href);
     });
   }
 };
 
-const searchContact = (event) => {
-  const name = event.target.value;
-  const contacts = leerLS(KEY_CONTACTOS);
-  const filteredContacts = contacts.filter(
-    (contact) => contact.name.includes(name) || contact.alias.includes(name)
-  );
-  displayContacts(filteredContacts);
+const toogleFormTransferencia = (destinatario = '') => {
+  const contFiltro = document.getElementById('contenedor-filtro');
+  const contTransferencia = document.getElementById('contenedor-transferencia');
+  const titulo = contTransferencia.querySelector('#titulo');
+  titulo.innerText = `Transferencia a ${destinatario}`;
+  contFiltro.classList.toggle('d-none');
+  contTransferencia.classList.toggle('d-none');
 };
 
-const createContact = () => {
-  // TODO: validar datos
-  const contactForm = document.getElementById('new-contact-form');
-  const newContact = extraerDatosForm(contactForm);
-  const currentContacts = leerLS(KEY_CONTACTOS);
-  console.log(currentContacts);
-
-  const newList = [...currentContacts, newContact];
-
-  actualizarLS(KEY_CONTACTOS, newList);
-  displayContacts(newList);
-};
-
-const cancelTransfer = () => {
-  console.log('first');
-  const container = document.getElementById('transfer-container');
-  const searchForm = document.getElementById('search-form');
-  container.classList.add('d-none');
-  searchForm.classList.remove('d-none');
-  // borrar user
-};
-
-const transfer = (contact) => {
-  const container = document.getElementById('transfer-container');
-  const searchForm = document.getElementById('search-form');
-  container.classList.remove('d-none');
-  searchForm.classList.add('d-none');
-  // seleccionar user
-};
-
-const transfer2 = (event) => {
-  event.preventDefault();
-  console.log('aca estoy');
-  const { amount } = extraerDatosForm(event.target);
-
-  const currentBalance = leerLS(KEY_SALDO);
-
-  if (amount > currentBalance) {
-    toast('Saldo insuficiente', false);
-    return;
-  }
-
-  const newBalance = currentBalance - amount;
-  console.log(newBalance);
-
-  actualizarLS(KEY_SALDO, newBalance);
-  mostrarSaldoActual();
-  registrarTransaccion({ type: 'Transferencia', amount: -amount });
-  toast('Transferencia realizada');
-};
-
-// ************************************************
-// ************ FUNCION INICIALIZADORA ************
-// ************************************************
+// ------------------------------------------------
+// ############ FUNCION INICIALIZADORA ############
+// ------------------------------------------------
 const main = () => {
+  // MOSTRAR DATOS
   mostrarSaldoActual();
+  listarDestinatarios(leerLS(KEY_CONTACTOS));
   listarTransacciones(leerLS(KEY_TRANSACCIONES));
 
-  displayContacts(leerLS(KEY_CONTACTOS));
+  // CONFIGURACIÓN FORMULARIOS
+  setupFormLogin();
+  setupFormDeposito();
+  setupFormTransferencia();
+  setupFormCrearDestinatario();
 
-  // * EVENT LISTENER FORMULARIO LOGIN
-  const loginForm = document.getElementById('login-form');
-  if (loginForm) loginForm.addEventListener('submit', iniciarSesion);
+  // CONFIGURACIÓN FILTROS
+  setupFiltroDestinatarios();
+  setupFiltroTransacciones();
 
-  // * EVENT LISTENER PARA OPCIONES MENU PRINCIPAL
-  const opciones = document.getElementsByClassName('opcion-menu');
-  if (opciones) {
-    for (let opcion of opciones) {
-      opcion.addEventListener('click', manejarMenu);
-    }
-  }
-
-  // * EVENT LISTENER PARA BOTONES DEPÓSITO/RETIRO
-  const botonesOperacion = document.getElementsByClassName('deposito-retiro');
-  if (botonesOperacion) {
-    for (let boton of botonesOperacion) {
-      boton.addEventListener('click', realizarOperacion);
-    }
-  }
-
-  // * EVENT LISTENER PARA SELECT DE TRANSACCIONES (FILTRO)
-  const selectTransacciones = document.getElementById('tipo-transaccion');
-  if (selectTransacciones)
-    selectTransacciones.addEventListener('change', filtrarTransacciones);
-
-  // Event Listener search contact
-  const searchInput = document.getElementById('search-contact');
-  if (searchInput) searchInput.addEventListener('input', searchContact);
-
-  // Event listener transfer form
-  const transferForm = document.getElementById('transfer-form');
-  if (transferForm) transferForm.addEventListener('submit', transfer2);
-
-  const cancelTransferBtn = document.getElementById('cancel-transfer');
-  if (cancelTransferBtn)
-    cancelTransferBtn.addEventListener('click', cancelTransfer);
-
-  const addContactBtn = document.getElementById('create-contact');
-  if (addContactBtn) addContactBtn.addEventListener('click', createContact);
+  // CONFIGURACIÓN OTROS EVENTOS
+  setupMenuHandler();
 };
 
-main();
+document.addEventListener('DOMContentLoaded', main);

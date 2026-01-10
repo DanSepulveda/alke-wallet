@@ -40,111 +40,130 @@
     />
     <title>Enviar dinero | Wallet</title>
   </head>
-  <body
-    class="d-flex flex-column align-items-center bg-glass"
-    id="home-bg"
-  >
-    <main
-      class="container-custom d-flex flex-column align-items-center bg-main bg-glass"
-    >
-      <section class="w-full px-4 mt-4">
-        <a
-          class="btn text-foreground d-flex gap-2 align-items-center back"
-          href="menu.html"
-        >
-          <i class="bi bi-arrow-left"></i>
-          volver al menú
-        </a>
-      </section>
-      <section class="text-center text-white d-flex flex-column w-full mt-3">
-        <h2 class="text-center fs-1">Enviar dinero</h2>
-      </section>
-      <section
-        class="text-center text-white d-flex flex-column w-full mt-3 mb-4"
+  <body class="background d-flex">
+    <div class="bg-glass flex-grow-1 d-flex flex-column align-items-center">
+      <div
+        class="bg-main w-100 flex-grow-1 d-flex flex-column"
+        style="max-width: 470px"
       >
-        <span class="fs-6 text-foreground">Saldo contable</span>
-        <span
-          class="fs-1 fw-bold"
-          id="balance"
-          >$0</span
+        <header class="my-4 d-flex flex-column gap-3 px-4">
+          <a
+            href="menu.html"
+            class="btn d-flex gap-2 align-items-center text-foreground back"
+          >
+            <i class="bi bi-arrow-left"></i>
+            volver al menú
+          </a>
+          <section class="d-flex flex-column text-center text-white">
+            <h2 class="text-center fs-2 mb-4">Enviar dinero</h2>
+            <span class="fs-6 text-foreground">Saldo contable</span>
+            <span
+              id="saldo"
+              class="fs-1 fw-bold"
+            ></span>
+          </section>
+        </header>
+        <main
+          class="bg-white d-flex flex-column flex-grow-1 gap-4 rounded-top-5 px-5 py-4"
         >
-      </section>
-
-      <section
-        class="d-flex flex-column gap-4 container rounded-top-5 bg-white px-5 py-3"
-        style="flex: 1"
-      >
-        <form
-          action=""
-          id="search-form"
-        >
-          <div class="d-flex align-items-end gap-2 mb-3">
+          <!-- FILTRO DESTINATARIOS -->
+          <section
+            id="contenedor-filtro"
+            class="d-flex align-items-end gap-2 mb-4"
+          >
             <div class="flex-grow-1">
               <label
-                class="form-label fs-5"
-                for="search"
-                >Buscar en la agenda</label
+                for="buscar-destinatario"
+                class="form-label"
               >
+                Buscar en la agenda
+              </label>
               <input
+                id="buscar-destinatario"
+                name="destinatario"
                 type="text"
+                placeholder="Buscar por nombre o alias"
                 class="form-control"
-                id="search-contact"
-                placeholder="Buscar contacto"
-                name="search"
               />
             </div>
             <button
               type="button"
               class="btn btn-dark btn-main"
               data-bs-toggle="modal"
-              data-bs-target="#newContact"
+              data-bs-target="#nuevo-destinatario"
             >
               <i class="bi bi-person-fill-add"></i>
             </button>
-          </div>
-        </form>
-        <section
-          id="transfer-container"
-          class="d-none mb-3"
-        >
-          <label
-            class="form-label fs-5"
-            for="transfer-amount"
-            >Transferencia</label
+          </section>
+
+          <!-- FORMULARIO TRANSFERENCIA -->
+          <section
+            id="contenedor-transferencia"
+            class="d-none mb-3"
           >
-          <form
-            class="d-flex gap-2"
-            id="transfer-form"
-          >
-            <input
-              type="number"
-              class="form-control"
-              id="transfer-amount"
-              placeholder="Ingrese monto"
-              name="amount"
-            />
-            <button
-              class="btn btn-outline-dark btn-outline-main"
-              id="transfer"
-              type="submit"
-            >
-              <i class="bi bi-send"></i>
-            </button>
-            <button
-              class="btn btn-outline-dark btn-outline-main"
-              type="button"
-              id="cancel-transfer"
-            >
-              <i class="bi bi-trash"></i>
-            </button>
-          </form>
-        </section>
-        <section
-          class="d-flex flex-column gap-2 overflow-auto h-75 mb-5"
-          id="contacts"
-        ></section>
-      </section>
-    </main>
+            <h2
+              id="titulo"
+              class="fs-5 text-center mb-3"
+            ></h2>
+            <form id="form-transferencia">
+              <div class="mb-4">
+                <label
+                  for="monto"
+                  class="form-label"
+                >
+                  Monto
+                </label>
+                <input
+                  id="monto"
+                  name="monto"
+                  type="number"
+                  class="form-control"
+                  placeholder="Ingrese monto"
+                  min="500"
+                  required
+                />
+              </div>
+              <div class="mb-4">
+                <label
+                  for="asunto"
+                  class="form-label"
+                >
+                  Asunto (opcional)
+                </label>
+                <input
+                  id="asunto"
+                  name="asunto"
+                  type="text"
+                  class="form-control"
+                  placeholder="Ej: pago deuda"
+                  maxlength="20"
+                />
+              </div>
+              <div class="d-flex gap-2">
+                <button
+                  id="cancelar"
+                  type="button"
+                  class="btn btn-outline-dark btn-outline-main w-100"
+                >
+                  Cancelar
+                </button>
+                <button
+                  id="transferir"
+                  type="submit"
+                  class="btn btn-outline-dark btn-outline-main w-100"
+                >
+                  Transferir
+                </button>
+              </div>
+            </form>
+          </section>
+          <section
+            id="destinatarios"
+            class="d-flex flex-column gap-2 overflow-auto h-75 mb-5"
+          ></section>
+        </main>
+      </div>
+    </div>
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
       <div
         id="liveToast"
@@ -170,22 +189,18 @@
         </div>
       </div>
     </div>
+    <!-- MODAL "NUEVO DESTINATARIO" -->
     <div
+      id="nuevo-destinatario"
       class="modal fade"
-      id="newContact"
       tabindex="-1"
-      aria-labelledby="Nuevo contacto"
+      aria-labelledby="Nuevo destinatario"
       aria-hidden="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1
-              class="modal-title fs-5"
-              id="exampleModalLabel"
-            >
-              Nuevo contacto
-            </h1>
+            <h2 class="modal-title fs-5">Nuevo destinatario</h2>
             <button
               type="button"
               class="btn-close"
@@ -194,87 +209,95 @@
             ></button>
           </div>
           <div class="modal-body">
-            <form
-              action=""
-              id="new-contact-form"
-            >
-              <div class="mb-3">
+            <form id="form-destinatario">
+              <div class="mb-4">
                 <label
-                  class="form-label fs-5"
-                  for="name"
-                  >Nombre</label
+                  for="nombre"
+                  class="form-label"
                 >
+                  Nombre y apellido
+                </label>
                 <input
+                  id="nombre"
+                  name="nombre"
                   type="text"
+                  placeholder="Ej: Juan Pérez"
                   class="form-control"
-                  id="name"
-                  placeholder="Ingrese su nombre"
-                  name="name"
+                  required
                 />
               </div>
-              <div class="mb-3">
+              <div class="mb-4">
                 <label
-                  class="form-label fs-5"
                   for="alias"
-                  >Alias</label
+                  class="form-label"
                 >
+                  Alias
+                </label>
                 <input
-                  type="text"
-                  class="form-control"
                   id="alias"
-                  placeholder="Ingrese un alias"
                   name="alias"
+                  type="text"
+                  placeholder="Ej: Juanito"
+                  class="form-control"
                 />
               </div>
-              <div class="mb-3">
+              <div class="mb-4">
                 <label
-                  class="form-label fs-5"
-                  for="bank"
-                  >Banco</label
+                  for="banco"
+                  class="form-label"
                 >
+                  Banco
+                </label>
                 <select
-                  id="bank"
+                  id="banco"
+                  name="banco"
+                  aria-label="Banco destinatario"
                   class="form-select"
-                  aria-label="Default select example"
-                  name="bank"
+                  required
                 >
-                  <option disabled>Seleccione una opción</option>
-                  <option value="1">Banco Estado</option>
-                  <option value="2">Banco de Chile</option>
-                  <option value="3">Banco Santander</option>
+                  <option
+                    disabled
+                    selected
+                  >
+                    Seleccione una opción
+                  </option>
+                  <option value="Banco Estado">Banco Estado</option>
+                  <option value="Banco de Chile">Banco de Chile</option>
+                  <option value="Banco Santander">Banco Santander</option>
                 </select>
               </div>
-              <div class="mb-3">
+              <div class="mb-4">
                 <label
-                  class="form-label fs-5"
                   for="cbu"
-                  >N° CBU</label
+                  class="form-label"
                 >
+                  N° CBU
+                </label>
                 <input
-                  type="text"
-                  class="form-control"
                   id="cbu"
-                  placeholder="Ingrese el CBU"
                   name="cbu"
+                  type="number"
+                  placeholder="Ingrese el CBU"
+                  class="form-control"
+                  required
                 />
               </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  data-bs-dismiss="modal"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-dark btn-main"
+                >
+                  Crear
+                </button>
+              </div>
             </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-outline-danger"
-              data-bs-dismiss="modal"
-            >
-              Cerrar
-            </button>
-            <button
-              type="button"
-              class="btn btn-dark"
-              id="create-contact"
-            >
-              Crear
-            </button>
           </div>
         </div>
       </div>

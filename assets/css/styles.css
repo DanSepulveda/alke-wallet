@@ -13,18 +13,14 @@ body {
   min-height: 100dvh;
 }
 
-main {
-  flex: 1;
-}
-
 /* BACKGROUNDS */
-#home-bg {
+.background {
   background-image: url('../img/background.webp');
   background-position: center;
   background-size: cover;
 }
 
-#home-bg:before {
+.background:before {
   content: '';
   position: absolute;
   top: 0;
@@ -47,10 +43,6 @@ main {
 }
 
 /* CUSTOM CLASSES */
-.w-full {
-  width: 100%;
-}
-
 .fs-7 {
   font-size: 14px;
 }
@@ -61,11 +53,6 @@ main {
 
 .text-foreground {
   color: rgb(220, 220, 220);
-}
-
-.container-custom {
-  width: 100%;
-  max-width: 470px;
 }
 
 .text-color-main {
@@ -99,11 +86,4 @@ main {
 .back:hover {
   text-decoration: underline;
   color: white;
-}
-
-/* MEDIA QUERIES */
-@media screen and (min-width: 992px) {
-  .w-lg-75 {
-    width: 75%;
-  }
 }
