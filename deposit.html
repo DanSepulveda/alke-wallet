@@ -40,64 +40,84 @@
     />
     <title>Depositar | Wallet</title>
   </head>
-  <body
-    id="home-bg"
-    class="d-flex flex-column align-items-center bg-glass"
-  >
-    <main
-      class="container-custom d-flex flex-column align-items-center bg-main bg-glass"
-    >
-      <section class="w-full px-4 mt-4">
-        <a
-          class="btn text-foreground d-flex gap-2 align-items-center back"
-          href="menu.html"
+  <body class="background d-flex">
+    <div class="bg-glass flex-grow-1 d-flex flex-column align-items-center">
+      <div
+        class="bg-main w-100 flex-grow-1 d-flex flex-column"
+        style="max-width: 470px"
+      >
+        <header class="my-4 d-flex flex-column gap-3 px-4">
+          <a
+            href="menu.html"
+            class="btn d-flex gap-2 align-items-center text-foreground back"
+          >
+            <i class="bi bi-arrow-left"></i>
+            volver al menú
+          </a>
+          <section class="d-flex flex-column text-center text-white">
+            <h2 class="text-center fs-2 mb-4">Enviar dinero</h2>
+            <span class="fs-6 text-foreground">Saldo contable</span>
+            <span
+              id="saldo"
+              class="fs-1 fw-bold"
+            ></span>
+          </section>
+        </header>
+        <main
+          class="bg-white d-flex flex-column flex-grow-1 gap-4 rounded-top-5 px-5 py-4"
         >
-          <i class="bi bi-arrow-left"></i>
-          volver al menú
-        </a>
-      </section>
-      <section
-        class="text-center text-white d-flex flex-column w-full mt-3 mb-4"
-      >
-        <span class="fs-6 text-foreground">Saldo contable</span>
-        <span
-          class="fs-1 fw-bold"
-          id="saldo"
-        ></span>
-      </section>
-      <section
-        class="d-flex flex-column flex-grow-1 gap-4 container rounded-top-5 bg-white px-5 py-3"
-      >
-        <div class="mb-3">
-          <label
-            class="form-label fs-5"
-            for="monto-operacion"
-            >Monto de la operación</label
-          >
-          <input
-            type="number"
-            class="form-control"
-            id="monto-operacion"
-            placeholder="Ingrese el monto"
-            name="monto-operacion"
-          />
-        </div>
-        <div class="d-flex gap-2">
-          <button
-            data-operacion="Depósito"
-            class="btn btn-dark btn-main w-100 deposito-retiro"
-          >
-            Realizar depósito
-          </button>
-          <button
-            data-operacion="Retiro"
-            class="btn btn-dark btn-main w-100 deposito-retiro"
-          >
-            Realizar retiro
-          </button>
-        </div>
-      </section>
-    </main>
+          <form id="form-deposito">
+            <div class="mb-4">
+              <label
+                for="monto-operacion"
+                class="form-label"
+              >
+                Monto
+              </label>
+              <input
+                id="monto-operacion"
+                name="monto"
+                type="number"
+                min="1"
+                placeholder="Ej: $5000"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="asunto-operacion"
+                class="form-label"
+              >
+                Asunto (opcional)
+              </label>
+              <input
+                id="asunto-operacion"
+                name="asunto"
+                type="text"
+                maxlength="20"
+                placeholder="Ej: depósito venta productos"
+                class="form-control"
+              />
+            </div>
+            <div class="d-flex gap-2">
+              <button
+                data-operacion="Retiro"
+                class="btn btn-dark btn-main w-100"
+              >
+                Realizar retiro
+              </button>
+              <button
+                data-operacion="Depósito"
+                class="btn btn-dark btn-main w-100"
+              >
+                Realizar depósito
+              </button>
+            </div>
+          </form>
+        </main>
+      </div>
+    </div>
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
       <div
         id="liveToast"
