@@ -65,16 +65,20 @@
           class="bg-white d-flex flex-column flex-grow-1 rounded-top-5 px-5 py-4"
           style="min-height: 0"
         >
-          <div class="mb-4">
+          <!-- CONTENEDOR SELECT FILTRO -->
+          <div
+            id="contenedor-filtro"
+            class="mb-4"
+          >
             <label
-              for="tipo-transaccion"
+              for="tipo-movimiento"
               class="form-label"
             >
-              Categoría transacciones
+              Categoría movimientos
             </label>
             <select
-              id="tipo-transaccion"
-              name="transaccion"
+              id="tipo-movimiento"
+              name="movimiento"
               class="form-select"
             >
               <option value="">Mostrar todos los movimientos</option>
@@ -83,9 +87,9 @@
               <option value="Transferencia">Transferencias</option>
             </select>
           </div>
-          <!-- CONTENEDOR PARA LISTAR TRANSACCIONES -->
+          <!-- CONTENEDOR PARA LISTAR MOVIMIENTOS -->
           <ul
-            id="transacciones"
+            id="movimientos"
             class="list-group flex-grow-1 overflow-auto"
           ></ul>
         </main>
