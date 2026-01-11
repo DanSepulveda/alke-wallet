@@ -6,6 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
+    <!-- FUENTES DE GOOGLE -->
     <link
       rel="preconnect"
       href="https://fonts.googleapis.com"
@@ -19,6 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
       rel="stylesheet"
     />
+    <!-- BOOTSTRAP (CSS e ICONOS) -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -40,46 +42,57 @@
     />
     <title>Enviar dinero | Wallet</title>
   </head>
-  <body class="background d-flex">
-    <div class="bg-glass flex-grow-1 d-flex flex-column align-items-center">
-      <div
-        class="bg-main w-100 flex-grow-1 d-flex flex-column"
-        style="max-width: 470px"
-      >
-        <header class="my-4 d-flex flex-column gap-3 px-4">
+  <body>
+    <!-- CONTENEDOR GLASS -->
+    <div class="bg-glass d-flex justify-content-center">
+      <!-- CONTENEDOR PRINCIPAL -->
+      <div class="main-container w-100 d-flex flex-column">
+        <header class="p-4">
           <a
             href="menu.html"
-            class="btn d-flex gap-2 align-items-center text-foreground back"
+            class="text-foreground"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            data-bs-title="volver al menú"
+            data-bs-custom-class="ms-2"
           >
-            <i class="bi bi-arrow-left"></i>
-            volver al menú
+            <i class="bi bi-arrow-left-circle fs-4"></i>
+            <span class="visually-hidden">volver al menú</span>
           </a>
-          <section class="d-flex flex-column text-center text-white">
-            <h2 class="text-center fs-2 mb-4">Enviar dinero</h2>
-            <span class="fs-6 text-foreground">Saldo contable</span>
-            <span
-              id="saldo"
-              class="fs-1 fw-bold"
-            ></span>
+          <section
+            class="d-flex flex-column align-items-center text-center text-white"
+          >
+            <h1 class="text-center text-white fs-3">Enviar dinero</h1>
+            <div
+              class="d-flex flex-column py-2 px-4 rounded-3 bg-glass shadow-sm"
+            >
+              <span class="fs-6 text-foreground">Saldo contable</span>
+              <!-- CONTENEDOR PARA MOSTRAR SALDO ACTUAL -->
+              <span
+                id="saldo"
+                class="fs-3 text-foreground"
+              ></span>
+            </div>
           </section>
         </header>
         <main
-          class="bg-white d-flex flex-column flex-grow-1 gap-4 rounded-top-5 px-5 py-4"
+          class="bg-white d-flex flex-column flex-grow-1 rounded-top-5 px-5 py-4"
+          style="min-height: 0"
         >
-          <!-- FILTRO DESTINATARIOS -->
+          <!-- CONTENEDOR FILTRO DESTINATARIOS -->
           <section
             id="contenedor-filtro"
             class="d-flex align-items-end gap-2 mb-4"
           >
             <div class="flex-grow-1">
               <label
-                for="buscar-destinatario"
+                for="buscador"
                 class="form-label"
               >
                 Buscar en la agenda
               </label>
               <input
-                id="buscar-destinatario"
+                id="buscador"
                 name="destinatario"
                 type="text"
                 placeholder="Buscar por nombre o alias"
@@ -93,14 +106,15 @@
               data-bs-target="#nuevo-destinatario"
             >
               <i class="bi bi-person-fill-add"></i>
+              <span class="visually-hidden">Nuevo destinatario</span>
             </button>
           </section>
-
-          <!-- FORMULARIO TRANSFERENCIA -->
+          <!-- CONTENEDOR FORMULARIO TRANSFERENCIA -->
           <section
             id="contenedor-transferencia"
             class="d-none mb-3"
           >
+            <!-- MOSTAR DESTINATARIO DE TRANSFERENCIA -->
             <h2
               id="titulo"
               class="fs-5 text-center mb-3"
@@ -113,15 +127,18 @@
                 >
                   Monto
                 </label>
-                <input
-                  id="monto"
-                  name="monto"
-                  type="number"
-                  class="form-control"
-                  placeholder="Ingrese monto"
-                  min="500"
-                  required
-                />
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input
+                    id="monto"
+                    name="monto"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="Monto tranferencia"
+                    class="form-control"
+                    required
+                  />
+                </div>
               </div>
               <div class="mb-4">
                 <label
@@ -134,9 +151,9 @@
                   id="asunto"
                   name="asunto"
                   type="text"
-                  class="form-control"
-                  placeholder="Ej: pago deuda"
                   maxlength="20"
+                  placeholder="Ej: pago deuda"
+                  class="form-control"
                 />
               </div>
               <div class="d-flex gap-2">
@@ -157,13 +174,15 @@
               </div>
             </form>
           </section>
-          <section
+          <!-- CONTENEDOR PARA LISTAR DESTINATARIOS -->
+          <ul
             id="destinatarios"
-            class="d-flex flex-column gap-2 overflow-auto h-75 mb-5"
-          ></section>
+            class="list-group gap-2 flex-grow-1 overflow-auto"
+          ></ul>
         </main>
       </div>
     </div>
+    <!-- CONTENEDOR PARA MENSAJES TOAST -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
       <div
         id="liveToast"
@@ -205,7 +224,7 @@
               type="button"
               class="btn-close"
               data-bs-dismiss="modal"
-              aria-label="Close"
+              aria-label="Cerrar"
             ></button>
           </div>
           <div class="modal-body">
@@ -231,7 +250,7 @@
                   for="alias"
                   class="form-label"
                 >
-                  Alias
+                  Alias (opcional)
                 </label>
                 <input
                   id="alias"
@@ -256,10 +275,12 @@
                   required
                 >
                   <option
+                    value=""
                     disabled
                     selected
+                    hidden
                   >
-                    Seleccione una opción
+                    Seleccione un banco
                   </option>
                   <option value="Banco Estado">Banco Estado</option>
                   <option value="Banco de Chile">Banco de Chile</option>
@@ -285,10 +306,10 @@
               <div class="modal-footer">
                 <button
                   type="button"
-                  class="btn btn-outline-danger"
                   data-bs-dismiss="modal"
+                  class="btn btn-outline-danger"
                 >
-                  Cerrar
+                  Cancelar
                 </button>
                 <button
                   type="submit"

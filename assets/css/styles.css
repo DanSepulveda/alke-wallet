@@ -1,6 +1,8 @@
-/* BASIC STYLES */
+/* ESTILOS BÁSICOS */
 * {
   font-family: 'Roboto', sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: #bdc3c7 transparent;
 }
 
 h1,
@@ -10,17 +12,14 @@ h3 {
 }
 
 body {
-  min-height: 100dvh;
-}
-
-/* BACKGROUNDS */
-.background {
+  height: 100dvh;
   background-image: url('../img/background.webp');
   background-position: center;
   background-size: cover;
+  background-repeat: no-repeat;
 }
 
-.background:before {
+body:before {
   content: '';
   position: absolute;
   top: 0;
@@ -30,29 +29,50 @@ body {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bdc3c7;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #95a5a6;
+}
+
+/* CLASES PERSONALIZADAS */
+.main-container {
+  max-width: 470px;
+  height: 100dvh;
+  overflow: hidden;
+  background: #6a3093;
+  background: -webkit-linear-gradient(to right, #a044ff, #6a3093);
+  background: linear-gradient(to right, #a044ff, #6a3093);
+}
+
 .bg-glass {
   background-color: #fafafa15;
   backdrop-filter: blur(0.4em);
   -webkit-backdrop-filter: blur(0.4em);
 }
 
-.bg-main {
-  background: #6a3093;
-  background: -webkit-linear-gradient(to right, #a044ff, #6a3093);
-  background: linear-gradient(to right, #a044ff, #6a3093);
-}
-
-/* CUSTOM CLASSES */
 .fs-7 {
   font-size: 14px;
 }
 
 .text-shadow-1 {
-  text-shadow: 1px 1px 3px rgb(61, 0, 56);
+  text-shadow: 1px 1px 3px rgb(0, 0, 0);
 }
 
 .text-foreground {
-  color: rgb(220, 220, 220);
+  color: rgb(235, 235, 235);
 }
 
 .text-color-main {
@@ -81,9 +101,4 @@ body {
 
 .btn-main:active {
   background-color: #6a3093 !important;
-}
-
-.back:hover {
-  text-decoration: underline;
-  color: white;
 }
