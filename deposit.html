@@ -6,6 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
+    <!-- FUENTES DE GOOGLE -->
     <link
       rel="preconnect"
       href="https://fonts.googleapis.com"
@@ -19,6 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
       rel="stylesheet"
     />
+    <!-- BOOTSTRAP (CSS e ICONOS) -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -40,59 +42,71 @@
     />
     <title>Depositar | Wallet</title>
   </head>
-  <body class="background d-flex">
-    <div class="bg-glass flex-grow-1 d-flex flex-column align-items-center">
-      <div
-        class="bg-main w-100 flex-grow-1 d-flex flex-column"
-        style="max-width: 470px"
-      >
-        <header class="my-4 d-flex flex-column gap-3 px-4">
+  <body>
+    <!-- CONTENEDOR GLASS -->
+    <div class="bg-glass d-flex justify-content-center">
+      <!-- CONTENEDOR PRINCIPAL -->
+      <div class="main-container w-100 d-flex flex-column">
+        <header class="p-4">
           <a
             href="menu.html"
-            class="btn d-flex gap-2 align-items-center text-foreground back"
+            class="text-foreground back"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            data-bs-title="volver al menú"
+            data-bs-custom-class="ms-2"
           >
-            <i class="bi bi-arrow-left"></i>
-            volver al menú
+            <i class="bi bi-arrow-left-circle fs-4"></i>
+            <span class="visually-hidden">volver al menú</span>
           </a>
-          <section class="d-flex flex-column text-center text-white">
-            <h2 class="text-center fs-2 mb-4">Enviar dinero</h2>
-            <span class="fs-6 text-foreground">Saldo contable</span>
-            <span
-              id="saldo"
-              class="fs-1 fw-bold"
-            ></span>
+          <section
+            class="d-flex flex-column align-items-center text-center text-white"
+          >
+            <h1 class="text-center text-white fs-3">Enviar dinero</h1>
+            <div class="d-flex flex-column py-2 px-4 rounded-3 bg-glass">
+              <span class="fs-6 text-foreground">Saldo contable</span>
+              <!-- CONTENEDOR PARA MOSTRAR SALDO ACTUAL -->
+              <span
+                id="saldo"
+                class="fs-3 text-foreground"
+              ></span>
+            </div>
           </section>
         </header>
         <main
           class="bg-white d-flex flex-column flex-grow-1 gap-4 rounded-top-5 px-5 py-4"
+          style="min-height: 0"
         >
           <form id="form-deposito">
             <div class="mb-4">
               <label
-                for="monto-operacion"
+                for="monto"
                 class="form-label"
               >
                 Monto
               </label>
-              <input
-                id="monto-operacion"
-                name="monto"
-                type="number"
-                min="1"
-                placeholder="Ej: $5000"
-                class="form-control"
-                required
-              />
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input
+                  id="monto"
+                  name="monto"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="Monto operación"
+                  class="form-control"
+                  required
+                />
+              </div>
             </div>
             <div class="mb-4">
               <label
-                for="asunto-operacion"
+                for="asunto"
                 class="form-label"
               >
                 Asunto (opcional)
               </label>
               <input
-                id="asunto-operacion"
+                id="asunto"
                 name="asunto"
                 type="text"
                 maxlength="20"
@@ -118,6 +132,7 @@
         </main>
       </div>
     </div>
+    <!-- CONTENEDOR PARA MENSAJES TOAST -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
       <div
         id="liveToast"
