@@ -70,6 +70,9 @@ const toast = (mensaje, exito = true) => {
   const toastBody = toast.querySelector('#toast-message');
 
   toastBody.innerHTML = mensaje;
+  toast.className = exito
+    ? 'toast bg-success-subtle'
+    : 'toast bg-danger-subtle';
   toastIcon.className = exito
     ? 'bi bi-check-circle text-success fs-5'
     : 'bi bi-x-circle text-danger fs-5';
