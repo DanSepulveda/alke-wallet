@@ -425,7 +425,6 @@ const setupInputMonto = () => {
   });
 };
 
-// !REVISAR
 const abrirFormTransferencia = (nombre = '') => {
   const contFiltro = document.getElementById('contenedor-filtro');
   const contenedorContactos = document.getElementById('contactos');
