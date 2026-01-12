@@ -79,7 +79,7 @@
           class="bg-white d-flex flex-column flex-grow-1 rounded-top-5 px-5 py-4"
           style="min-height: 0"
         >
-          <!-- CONTENEDOR FILTRO DESTINATARIOS -->
+          <!-- CONTENEDOR FILTRO CONTACTOS -->
           <section
             id="contenedor-filtro"
             class="d-flex align-items-end gap-2 mb-4"
@@ -93,7 +93,7 @@
               </label>
               <input
                 id="buscador"
-                name="destinatario"
+                name="contacto"
                 type="text"
                 placeholder="Buscar por nombre o alias"
                 class="form-control"
@@ -103,10 +103,10 @@
               type="button"
               class="btn btn-dark btn-main"
               data-bs-toggle="modal"
-              data-bs-target="#nuevo-destinatario"
+              data-bs-target="#nuevo-contacto"
             >
               <i class="bi bi-person-fill-add"></i>
-              <span class="visually-hidden">Nuevo destinatario</span>
+              <span class="visually-hidden">Nuevo contacto</span>
             </button>
           </section>
           <!-- CONTENEDOR FORMULARIO TRANSFERENCIA -->
@@ -114,7 +114,7 @@
             id="contenedor-transferencia"
             class="d-none mb-3"
           >
-            <!-- MOSTAR DESTINATARIO DE TRANSFERENCIA -->
+            <!-- MOSTAR CONTACTO DE DESTINO DE TRANSFERENCIA -->
             <h2
               id="titulo"
               class="fs-5 text-center mb-3"
@@ -174,11 +174,11 @@
               </div>
             </form>
           </section>
-          <!-- CONTENEDOR PARA LISTAR DESTINATARIOS -->
-          <ul
-            id="destinatarios"
-            class="list-group gap-2 flex-grow-1 overflow-auto"
-          ></ul>
+          <!-- CONTENEDOR PARA LISTAR CONTACTOS -->
+          <section
+            id="contactos"
+            class="d-flex flex-column gap-2 flex-grow-1 overflow-auto"
+          ></section>
         </main>
       </div>
     </div>
@@ -208,18 +208,18 @@
         </div>
       </div>
     </div>
-    <!-- MODAL "NUEVO DESTINATARIO" -->
+    <!-- MODAL "NUEVO CONTACTO" -->
     <div
-      id="nuevo-destinatario"
+      id="nuevo-contacto"
       class="modal fade"
       tabindex="-1"
-      aria-labelledby="Nuevo destinatario"
+      aria-labelledby="Nuevo contacto"
       aria-hidden="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title fs-5">Nuevo destinatario</h2>
+            <h2 class="modal-title fs-5">Nuevo contacto</h2>
             <button
               type="button"
               class="btn-close"
@@ -228,7 +228,7 @@
             ></button>
           </div>
           <div class="modal-body">
-            <form id="form-destinatario">
+            <form id="form-contacto">
               <div class="mb-4">
                 <label
                   for="nombre"
@@ -270,7 +270,7 @@
                 <select
                   id="banco"
                   name="banco"
-                  aria-label="Banco destinatario"
+                  aria-label="Banco contacto"
                   class="form-select"
                   required
                 >
