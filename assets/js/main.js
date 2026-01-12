@@ -306,7 +306,6 @@ const setupFormCrearContacto = () => {
 const setupFormTransferencia = () => {
   const formTransferencia = document.getElementById('form-transferencia');
   if (!formTransferencia) return;
-  const contactos = leerLS(KEY_CONTACTOS);
 
   formTransferencia.addEventListener('submit', (evento) => {
     evento.preventDefault();
@@ -334,12 +333,14 @@ const setupFormTransferencia = () => {
     });
     toast('Transferencia realizada exitosamente');
     formTransferencia.reset();
+    const contactos = leerLS(KEY_CONTACTOS);
     listarContactos(contactos);
   });
 
   const botonCancelar = document.getElementById('cancelar');
   botonCancelar.onclick = () => {
     formTransferencia.reset();
+    const contactos = leerLS(KEY_CONTACTOS);
     listarContactos(contactos);
   };
 };
