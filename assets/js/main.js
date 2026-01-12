@@ -9,28 +9,25 @@ const CLAVE_CORRECTA = 'admin';
 // ------------------------------------------------
 const KEY_SALDO = 'saldo';
 const KEY_CONTACTOS = 'contactos';
-const KEY_TRANSACCIONES = 'transacciones';
+const KEY_MOVIMIENTOS = 'movimientos';
 
 // ------------------------------------------------
 // ############# FUNCIONES AUXILIARES #############
 // ------------------------------------------------
-const formatearDinero = (monto) => {
-  const formateador = new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
+const formatearDinero = (monto, conSimbolo = true) => {
+  const opciones = conSimbolo ? { style: 'currency', currency: 'CLP' } : {};
+  const resultado = new Intl.NumberFormat('es-CL', opciones).format(monto);
+  return resultado;
+};
+
+const formatearFecha = (fecha) => {
+  const fechaSinFormato = new Date(fecha);
+
+  return fechaSinFormato.toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
   });
-
-  return formateador.format(monto);
-};
-
-const desactivarBoton = (id) => {
-  const boton = document.getElementById(id);
-  boton.disabled = 'true';
-};
-
-const mostrarSpinner = () => {
-  const spinner = document.getElementById('spinner');
-  spinner.classList.remove('d-none');
 };
 
 const leerLS = (clave) => {
@@ -49,7 +46,22 @@ const alertar = (mensaje, exito = true) => {
   const clases = exito ? 'alert alert-success' : 'alert alert-danger';
 
   alerta.className = clases;
-  alerta.textContent = mensaje;
+
+  if (!exito) {
+    alerta.innerText = mensaje;
+    return;
+  }
+
+  alerta.innerHTML = `
+    <div
+      id="spinner-alerta"
+      role="status"
+      class="spinner-border spinner-border-sm text-success me-2"
+    >
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    ${mensaje}
+  `;
 };
 
 const toast = (mensaje, exito = true) => {
@@ -57,7 +69,7 @@ const toast = (mensaje, exito = true) => {
   const toastIcon = toast.querySelector('#toast-icon');
   const toastBody = toast.querySelector('#toast-message');
 
-  toastBody.innerText = mensaje;
+  toastBody.innerHTML = mensaje;
   toastIcon.className = exito
     ? 'bi bi-check-circle text-success fs-5'
     : 'bi bi-x-circle text-danger fs-5';
@@ -73,28 +85,26 @@ const redirigir = (url, tiempo = 1500) => {
 };
 
 const extraerDatosForm = (formulario) => {
-  const formData = new FormData(formulario);
-  return Object.fromEntries(formData.entries());
+  const datosForm = new FormData(formulario);
+  return Object.fromEntries(datosForm.entries());
 };
 
-const generarFechaActual = () => {
-  const ahora = new Date();
-
-  return ahora.toLocaleString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
+const mensajeSinRegistros = (contenedor, mensaje) => {
+  contenedor.innerHTML = `
+    <div class="text-center text-muted opacity-50">
+      <i
+        class="bi bi-patch-question text-muted"
+        style="font-size: 80px"
+      ></i>
+      <h3 class="fw-bold">${mensaje}</h3>
+    </div>
+  `;
 };
 
-const registrarTransaccion = (transaccion) => {
-  const transaccionesActuales = leerLS(KEY_TRANSACCIONES);
-  transaccionesActuales.unshift(transaccion);
-  actualizarLS(KEY_TRANSACCIONES, transaccionesActuales);
-  listarTransacciones(transaccionesActuales);
+const registrarMovimiento = (movimiento) => {
+  const movimientosActuales = leerLS(KEY_MOVIMIENTOS);
+  movimientosActuales.unshift(movimiento);
+  actualizarLS(KEY_MOVIMIENTOS, movimientosActuales);
 };
 
 // ------------------------------------------------
@@ -106,75 +116,105 @@ const mostrarSaldoActual = () => {
   saldoSpan.innerText = formatearDinero(leerLS(KEY_SALDO));
 };
 
-const listarDestinatarios = (destinatarios) => {
-  const contenedorDestinatarios = document.getElementById('destinatarios');
-  if (!contenedorDestinatarios) return;
+const listarContactos = (contactos) => {
+  const contenedorFiltro = document.getElementById('contenedor-filtro');
+  const contenedorContactos = document.getElementById('contactos');
+  const contTransferencia = document.getElementById('contenedor-transferencia');
 
-  contenedorDestinatarios.innerHTML = '';
-  destinatarios.forEach((destinatario) => {
+  if (!contenedorFiltro || !contenedorContactos) return;
+  const contactosRegistrados = leerLS(KEY_CONTACTOS);
+
+  contenedorFiltro.classList.remove('d-none');
+  contenedorContactos.classList.remove('d-none');
+  contTransferencia.classList.add('d-none');
+
+  if (!contactosRegistrados.length) {
+    contenedorFiltro.classList.add('d-none');
+    mensajeSinRegistros(contenedorContactos, 'No hay contactos');
+    contenedorContactos.innerHTML += `
+      <button
+        type="button"
+        class="btn btn-dark btn-main mx-auto mt-3"
+        data-bs-toggle="modal"
+        data-bs-target="#nuevo-contacto"
+      >
+        <i class="bi bi-person-fill-add"></i>
+        Crear
+      </button>
+    `;
+    return;
+  }
+
+  if (!contactos.length) {
+    mensajeSinRegistros(contenedorContactos, 'Sin resultados');
+    return;
+  }
+
+  contenedorContactos.innerHTML = '';
+
+  contactos.forEach((contacto) => {
+    const alias = contacto.alias !== '' ? `(${contacto.alias})` : '';
     const boton = `
-        <button
-          class="btn btn-outline-dark btn-outline-main border d-flex align-items-center gap-3 p-2 rounded-2"
-          data-destinatario="${destinatario.nombre}"
-        >
-          <img src="assets/img/usuario.png" width="36" alt="Avatar" />
-          <div class="d-flex flex-column align-items-start">
-            <span class="fw-bold">${destinatario.nombre} (${destinatario.alias})</span>
-            <span>${destinatario.banco}</span>
-            <span class="fs-7">CBU: ${destinatario.cbu}</span>
-          </div>
-        </button>
-      `;
+      <button
+        class="btn btn-outline-dark btn-outline-main border d-flex align-items-center gap-3 p-2 rounded-2"
+        data-contacto="${contacto.nombre}"
+      >
+        <img src="assets/img/usuario.png" width="36" alt="Avatar" />
+        <div class="d-flex flex-column align-items-start">
+          <span class="fw-bold">${contacto.nombre} ${alias}</span>
+          <span class="fs-7">${contacto.banco} - ${contacto.cbu}</span><span></span>
+        </div>
+      </button>
+    `;
 
-    contenedorDestinatarios.innerHTML += boton;
+    contenedorContactos.innerHTML += boton;
   });
 
-  contenedorDestinatarios.addEventListener('click', (evento) => {
+  contenedorContactos.addEventListener('click', (evento) => {
     const boton = evento.target.closest('button');
     if (!boton) return;
-
-    const destinatario = boton.dataset.destinatario;
-    toogleFormTransferencia(destinatario);
-    contenedorDestinatarios.innerHTML = '';
+    abrirFormTransferencia(boton.dataset.contacto);
   });
-
-  if (!destinatarios.length) {
-    contenedorDestinatarios.innerHTML = `
-        <p class="text-center">No hay destinatarios regristrados</p>
-      `;
-  }
 };
 
-const listarTransacciones = (transacciones) => {
-  const contenedorTransacciones = document.getElementById('transacciones');
-  if (!contenedorTransacciones) return;
+const listarMovimientos = (movimientos) => {
+  const contenedorMovimientos = document.getElementById('movimientos');
+  const contenedorFiltro = document.getElementById('contenedor-filtro');
+  if (!contenedorMovimientos || !contenedorFiltro) return;
+  const movimientosRegistrados = leerLS(KEY_MOVIMIENTOS);
 
-  contenedorTransacciones.innerHTML = '';
-
-  transacciones.forEach((transaccion) => {
-    const color = transaccion.monto < 0 ? 'danger' : 'success';
-    const tarjeta = `
-        <li class="list-group-item">
-          <div class="d-flex justify-content-between fw-light fs-7">
-            <span>${transaccion.fecha}</span>
-            <span>${transaccion.asunto ?? ''}</span>
-          </div>
-          <div class="d-flex justify-content-between gap-2">
-            <span>${transaccion.tipo}</span>
-            <span class="text-right text-${color}">
-              ${formatearDinero(transaccion.monto)}
-            </span>
-          </div>
-        </li>`;
-
-    contenedorTransacciones.innerHTML += tarjeta;
-  });
-
-  if (!transacciones.length) {
-    contenedorTransacciones.innerHTML = `
-        <p class="text-center">Sin movimientos</p>
-      `;
+  if (!movimientosRegistrados.length) {
+    mensajeSinRegistros(contenedorMovimientos, 'Sin movimientos');
+    contenedorFiltro.classList.add('d-none');
+    return;
   }
+
+  if (!movimientos.length) {
+    mensajeSinRegistros(contenedorMovimientos, 'Sin resultados');
+    return;
+  }
+
+  contenedorMovimientos.innerHTML = '';
+
+  movimientos.forEach((movimiento) => {
+    const color = movimiento.monto < 0 ? 'danger' : 'success';
+    const tarjeta = `
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between fw-light fs-7">
+          <span>${formatearFecha(movimiento.fecha)}</span>
+          <span>${movimiento.asunto}</span>
+        </div>
+        <div class="d-flex justify-content-between gap-2">
+          <span>${movimiento.tipo}</span>
+          <span class="text-right text-${color}">
+            ${formatearDinero(movimiento.monto)}
+          </span>
+        </div>
+      </li>
+    `;
+
+    contenedorMovimientos.innerHTML += tarjeta;
+  });
 };
 
 // ------------------------------------------------
@@ -186,12 +226,11 @@ const setupFormLogin = () => {
 
   formularioLogin.addEventListener('submit', (evento) => {
     evento.preventDefault();
-    const datos = extraerDatosForm(evento.target);
+    const form = extraerDatosForm(evento.target);
 
-    if (datos.email === EMAIL_CORRECTO && datos.password === CLAVE_CORRECTA) {
+    if (form.email === EMAIL_CORRECTO && form.password === CLAVE_CORRECTA) {
       alertar('Inicio de sesión exitoso. Redireccionando...');
-      mostrarSpinner();
-      desactivarBoton('boton-login');
+      evento.submitter.disabled = true;
       redirigir('menu.html');
     } else {
       alertar('Credenciales incorrectas.', false);
@@ -210,131 +249,131 @@ const setupFormDeposito = () => {
   formularioDeposito.addEventListener('submit', (evento) => {
     evento.preventDefault();
     const form = extraerDatosForm(evento.target);
-    let montoOperacion = form.monto;
+    let montoOperacion = parseInt(form.monto.replace('.', ''));
+    const operacion = evento.submitter.dataset.operacion;
+    const saldoActual = leerLS(KEY_SALDO);
 
-    if (montoOperacion <= 0) {
-      toast('Ingrese un monto mayor a $0', false);
+    if (montoOperacion === 0) {
+      toast('Ingrese un monto mayor que $0', false);
       return;
     }
-
-    montoOperacion = parseInt(montoOperacion);
-    const saldoActual = leerLS(KEY_SALDO);
-    const operacion = evento.submitter.dataset.operacion;
 
     if (operacion === 'Retiro') {
       if (montoOperacion > saldoActual) {
         toast('Saldo insuficiente', false);
         return;
       }
-
       montoOperacion *= -1;
     }
 
     evento.target.reset();
     actualizarLS(KEY_SALDO, saldoActual + montoOperacion);
     mostrarSaldoActual();
-    registrarTransaccion({
+    registrarMovimiento({
       tipo: operacion,
       monto: montoOperacion,
-      fecha: generarFechaActual(),
+      fecha: new Date(),
       asunto: form.asunto,
     });
     toast(
-      `Se ha realizado un ${operacion.toLowerCase()} de ${formatearDinero(
+      `Se ha realizado un <span class="fw-bold">${operacion.toLowerCase()}</span> de <span class="fw-bold">${formatearDinero(
         montoOperacion
-      )}`
+      )}</span>`
     );
     redirigir('menu.html', 2000);
   });
 };
 
-const setupFormCrearDestinatario = () => {
-  const formularioDestinatario = document.getElementById('form-destinatario');
-  if (!formularioDestinatario) return;
+const setupFormCrearContacto = () => {
+  const formNuevoContacto = document.getElementById('form-contacto');
+  if (!formNuevoContacto) return;
 
-  formularioDestinatario.addEventListener('submit', (evento) => {
+  formNuevoContacto.addEventListener('submit', (evento) => {
     evento.preventDefault();
-    const nuevoDestinatario = extraerDatosForm(evento.target);
-    const destinatariosActuales = leerLS(KEY_CONTACTOS);
-    destinatariosActuales.push(nuevoDestinatario);
-    actualizarLS(KEY_CONTACTOS, destinatariosActuales);
-    const modalElement = document.getElementById('nuevo-destinatario');
-    const bsModal = bootstrap.Modal.getInstance(modalElement);
+    const nuevoContacto = extraerDatosForm(evento.target);
+    const contactosActuales = leerLS(KEY_CONTACTOS);
+    contactosActuales.push(nuevoContacto);
+    actualizarLS(KEY_CONTACTOS, contactosActuales);
+    document.activeElement.blur();
+    const elementoModal = document.getElementById('nuevo-contacto');
+    const bsModal = bootstrap.Modal.getInstance(elementoModal);
     bsModal.hide();
-    formularioDestinatario.reset();
-    listarDestinatarios(destinatariosActuales);
+    formNuevoContacto.reset();
+    listarContactos(contactosActuales);
   });
 };
 
-// !REVISAR
 const setupFormTransferencia = () => {
   const formTransferencia = document.getElementById('form-transferencia');
   if (!formTransferencia) return;
+  const contactos = leerLS(KEY_CONTACTOS);
 
   formTransferencia.addEventListener('submit', (evento) => {
     evento.preventDefault();
     const form = extraerDatosForm(evento.target);
-
+    const montoOperacion = parseInt(form.monto.replace('.', ''));
     const saldoActual = leerLS(KEY_SALDO);
 
-    if (form.monto > saldoActual) {
+    if (montoOperacion === 0) {
+      toast('Ingrese un monto mayor que $0', false);
+      return;
+    }
+
+    if (montoOperacion > saldoActual) {
       toast('Saldo insuficiente', false);
       return;
     }
 
-    actualizarLS(KEY_SALDO, saldoActual - form.monto);
+    actualizarLS(KEY_SALDO, saldoActual - montoOperacion);
     mostrarSaldoActual();
-    registrarTransaccion({
-      tipo: 'Transferencia',
-      monto: -form.monto,
-      fecha: generarFechaActual(),
+    registrarMovimiento({
+      tipo: formTransferencia.previousElementSibling.innerText,
+      monto: -montoOperacion,
+      fecha: new Date(),
       asunto: form.asunto,
     });
-    toast('Transferencia realizada');
-    toogleFormTransferencia();
-    const destinatarios = leerLS(KEY_CONTACTOS);
-    listarDestinatarios(destinatarios);
+    toast('Transferencia realizada exitosamente');
+    formTransferencia.reset();
+    listarContactos(contactos);
   });
 
   const botonCancelar = document.getElementById('cancelar');
-  console.log(botonCancelar);
-  botonCancelar.addEventListener('click', () => {
-    toogleFormTransferencia();
-    const destinatarios = leerLS(KEY_CONTACTOS);
-    listarDestinatarios(destinatarios);
-  });
+  botonCancelar.onclick = () => {
+    formTransferencia.reset();
+    listarContactos(contactos);
+  };
 };
 
 // ------------------------------------------------
 // ############### SETUP DE FILTROS ###############
 // ------------------------------------------------
-const setupFiltroDestinatarios = () => {
-  const inputDestinatario = document.getElementById('buscar-destinatario');
-  if (!inputDestinatario) return;
+const setupFiltroContactos = () => {
+  const buscadorContactos = document.getElementById('buscador');
+  if (!buscadorContactos) return;
 
-  inputDestinatario.addEventListener('input', (evento) => {
-    const busqueda = evento.target.value;
+  buscadorContactos.addEventListener('input', (evento) => {
+    const busqueda = evento.target.value.toLowerCase();
     const contactosActuales = leerLS(KEY_CONTACTOS);
     const contactosFiltrados = contactosActuales.filter(
       (contacto) =>
-        contacto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        contacto.alias.toLowerCase().includes(busqueda.toLowerCase())
+        contacto.nombre.toLowerCase().includes(busqueda) ||
+        contacto.alias.toLowerCase().includes(busqueda)
     );
-    listarDestinatarios(contactosFiltrados);
+    listarContactos(contactosFiltrados);
   });
 };
 
-const setupFiltroTransacciones = () => {
-  const selectTransacciones = document.getElementById('tipo-transaccion');
-  if (!selectTransacciones) return;
+const setupFiltroMovimientos = () => {
+  const selectMovimientos = document.getElementById('tipo-movimiento');
+  if (!selectMovimientos) return;
 
-  selectTransacciones.addEventListener('change', (evento) => {
-    const tipoTransaccion = evento.target.value;
-    const transaccionesActuales = leerLS(KEY_TRANSACCIONES);
-    const transaccionesFiltradas = transaccionesActuales.filter((transaccion) =>
-      transaccion.tipo.includes(tipoTransaccion)
+  selectMovimientos.addEventListener('change', (evento) => {
+    const tipoMovimiento = evento.target.value;
+    const movimientosActuales = leerLS(KEY_MOVIMIENTOS);
+    const movimientosFiltrados = movimientosActuales.filter((movimiento) =>
+      movimiento.tipo.includes(tipoMovimiento)
     );
-    listarTransacciones(transaccionesFiltradas);
+    listarMovimientos(movimientosFiltrados);
   });
 };
 
@@ -343,12 +382,16 @@ const setupFiltroTransacciones = () => {
 // ------------------------------------------------
 const setupMenuHandler = () => {
   const opciones = document.getElementsByClassName('opcion-menu');
-  if (!opciones) return;
+  if (!opciones.length) return;
 
   for (let opcion of opciones) {
     opcion.addEventListener('click', (evento) => {
-      const href = evento.target.dataset.href;
-      const texto = evento.target.textContent.trim();
+      const href = evento.currentTarget.dataset.href;
+      const texto = evento.currentTarget.innerText;
+
+      for (let boton of opciones) {
+        boton.disabled = true;
+      }
 
       alertar(`Redirigiendo a "${texto}"`);
       redirigir(href);
@@ -356,13 +399,42 @@ const setupMenuHandler = () => {
   }
 };
 
-const toogleFormTransferencia = (destinatario = '') => {
+const setupTooltips = () => {
+  const listaTooltip = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  [...listaTooltip].map((trigger) => new bootstrap.Tooltip(trigger));
+};
+
+const setupInputMonto = () => {
+  const inputMonto = document.getElementById('monto');
+  if (!inputMonto) return;
+
+  inputMonto.addEventListener('input', (evento) => {
+    let monto = evento.target.value.replace(/\D/g, '');
+
+    if (!monto) {
+      evento.target.value = '';
+      return;
+    }
+
+    const montoFormateado = formatearDinero(monto, false);
+    evento.target.value = montoFormateado;
+  });
+};
+
+// !REVISAR
+const abrirFormTransferencia = (nombre = '') => {
   const contFiltro = document.getElementById('contenedor-filtro');
+  const contenedorContactos = document.getElementById('contactos');
   const contTransferencia = document.getElementById('contenedor-transferencia');
+
   const titulo = contTransferencia.querySelector('#titulo');
-  titulo.innerText = `Transferencia a ${destinatario}`;
-  contFiltro.classList.toggle('d-none');
-  contTransferencia.classList.toggle('d-none');
+  if (titulo) {
+    titulo.innerText = `Transferencia a ${nombre}`;
+  }
+
+  contFiltro.classList.add('d-none');
+  contenedorContactos.classList.add('d-none');
+  contTransferencia.classList.remove('d-none');
 };
 
 // ------------------------------------------------
@@ -371,21 +443,23 @@ const toogleFormTransferencia = (destinatario = '') => {
 const main = () => {
   // MOSTRAR DATOS
   mostrarSaldoActual();
-  listarDestinatarios(leerLS(KEY_CONTACTOS));
-  listarTransacciones(leerLS(KEY_TRANSACCIONES));
+  listarContactos(leerLS(KEY_CONTACTOS));
+  listarMovimientos(leerLS(KEY_MOVIMIENTOS));
 
   // CONFIGURACIÓN FORMULARIOS
   setupFormLogin();
   setupFormDeposito();
   setupFormTransferencia();
-  setupFormCrearDestinatario();
+  setupFormCrearContacto();
 
   // CONFIGURACIÓN FILTROS
-  setupFiltroDestinatarios();
-  setupFiltroTransacciones();
+  setupFiltroContactos();
+  setupFiltroMovimientos();
 
   // CONFIGURACIÓN OTROS EVENTOS
   setupMenuHandler();
+  setupTooltips();
+  setupInputMonto();
 };
 
 document.addEventListener('DOMContentLoaded', main);
