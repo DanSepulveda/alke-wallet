@@ -83,20 +83,30 @@ body:before {
   border-color: #6a3093;
 }
 
-.btn-outline-main:hover {
-  background-color: #290046c6;
+.btn-outline-main:hover,
+.btn-outline-main:focus {
+  background-color: #290046c6 !important;
+}
+
+.btn-outline-main:focus {
+  box-shadow: 0 0 0 0.25rem #b369e795 !important;
 }
 
 .btn-outline-main:active {
-  background-color: #290046a6 !important;
+  background-color: #6a3093 !important;
 }
 
 .btn-main {
   background-color: #6a3093;
 }
 
-.btn-main:hover {
-  background-color: #7b37ac;
+.btn-main:hover,
+.btn-main:focus {
+  background-color: #7b37ac !important;
+}
+
+.btn-main:focus {
+  box-shadow: 0 0 0 0.25rem #b369e795 !important;
 }
 
 .btn-main:active {
